@@ -1,0 +1,65 @@
+# Workflow runs the scrape process to refresh/update daily
+
+# Run events
+on:
+  # On push
+  push:
+    branches: ["main"]
+  # On pull
+  pull_request:
+    branches: ["main"]
+  # Add manual trigger from Actions tab
+  workflow_dispatch:
+  # Schedule run at 9 AM UTC every day
+  schedule:
+    - cron: '0 9 * * *'
+
+# Sets permissions of the GITHUB_TOKEN for deployment to GitHub Pages
+permissions:
+  contents: write # changed from read to allow repo updates
+  pages: write
+  id-token: write
+
+# Define workflow job
+jobs:
+  build:
+    # Runs on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out a copy of repo
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Set up Python (need py) and Node.js 16
+      - name: Set up Python and Node.js
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          node-version: '16.x' # specify Node.js 16 to avoid depreciation warns
+          
+      - name: Show Current Directory # testing
+        run: pwd
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      # Run the scrape
+      - name: Run Python script
+        run: python ofsted_childrens_services_inspection_scrape.py
+
+  # Deploy job
+  deploy:
+    # Run on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+    # Build job must complete successfully
+    needs: build
+    steps:
+      # Deploy to GitHub Pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Directory deployed to GitHub Pages
+          publish_dir: ./
