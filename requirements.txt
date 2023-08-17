@@ -1,0 +1,8 @@
+tabula-py
+textblob
+gensim
+nltk
+xlsxwriter
+PyPDF2
+requests
+beautifulsoup4
