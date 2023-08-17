@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-          node-version: '16.x' # specify Node.js 16 to avoid depreciation warns
+          node-version: 'python-version' # specify Node.js 16 to avoid depreciation warns / ['python-version', 'cache', 'architecture', 'token', 'cache-dependency-path']
           
       - name: Show Current Directory # testing
         run: pwd
