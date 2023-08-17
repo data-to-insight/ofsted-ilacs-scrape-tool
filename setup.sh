@@ -7,6 +7,5 @@ sudo apt-get update
 pip install -r requirements.txt
 
                                      
-
 # Install the Python extension for Visual Studio Code
 code --install-extension ms-python.python --force
