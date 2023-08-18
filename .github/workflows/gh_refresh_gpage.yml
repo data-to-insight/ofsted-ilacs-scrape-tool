@@ -58,6 +58,7 @@ jobs:
 
       # Configure Git and Commit changes
       - name: Commit and Push changes
+      # if: github.event_name == 'schedule' # Use on testing, to avoid inf loop for on push workflow event trigger
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
