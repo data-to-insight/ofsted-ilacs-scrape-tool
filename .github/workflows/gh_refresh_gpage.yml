@@ -2,6 +2,9 @@
 
 # Run events
 on:
+  # # On push
+  # push:
+  #   branches: ["main"]
   # On pull
   pull_request:
     branches: ["main"]
