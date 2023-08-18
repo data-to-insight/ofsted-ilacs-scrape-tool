@@ -30,21 +30,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Set up Python (need py) and Node.js 16
-      - name: Set up Python and Node.js
+      # Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-          node-version: 'python-version' # specify Node.js 16 to avoid depreciation warns / ['python-version', 'cache', 'architecture', 'token', 'cache-dependency-path']
           
-      - name: Show Current Directory # testing
-        run: pwd
+      # Show Current Directory and List Files
+      - name: Show Current Directory
+        run: |
+          pwd
+          ls
 
       # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if ! pip install -r requirements.txt; then
+            echo "Failed to install dependencies!"
+            exit 1
+          fi
+
+      # Ensure Script is Executable
+      - name: Ensure Script is Executable
+        run: chmod +x ofsted_childrens_services_inspection_scrape.py
+
       # Run the scrape
       - name: Run Python script
         run: python ofsted_childrens_services_inspection_scrape.py
