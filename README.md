@@ -60,5 +60,10 @@ If looking to obtain a full instant refresh of the ilacs output, the ofsted_chil
 - Close codespace (Github will auto-remove unused spaces later)
 - 
 ### Run notes (Admin)
+If you experience a permissions error running the setup bash file. 
+
+/workspaces/ofsted-ilacs-scrape-tool (main) $ ./setup.sh
+bash: ./setup.sh: Permission denied
+
+then type the following, and try again: 
 chmod +x setup.sh
-$./setup.sh
