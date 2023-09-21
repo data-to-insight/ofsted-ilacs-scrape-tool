@@ -1012,8 +1012,27 @@ def reposition_columns(df, key_col, cols_to_move):
     return df[cols]
 
 
-
+### Start of GEO data proc
+#
 def read_json_to_dataframe(file_path, exclude_fields=None):
+    """
+    Convert a JSON file containing geo data into a pandas DataFrame.
+    
+    This function specifically handles GeoJSON formatted files. Made to allow the
+    import of LA boundaries/ONS codes that can be then combined with the inspection 
+    report data towards applying into such as a Chloropleth/mapping visualisations. 
+
+    Parameters:
+    - file_path (str): Path to the JSON file to be read.
+    - exclude_fields (list, optional): A list of keys to exclude from the 
+      properties of the features. Default is None.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame with each row being the properties of a 
+      feature and an additional column for coordinates. All column headers 
+      will be in lowercase.
+
+    """
     with open(file_path, 'r') as file:
         data = json.load(file)
 
@@ -1038,10 +1057,24 @@ def read_json_to_dataframe(file_path, exclude_fields=None):
 
 
 def replace_empty_ladcode_values(df, col1, col2):
+    """
+    Replace empty or NaN values in a specified DataFrame column with values from another column.
+    We need to replace null LADCODE/LAD23CD from any geospacial data added as those rows will later fail if 
+    not addressed. Some LA's have boundary data that does not conform to a single LAD23CD, so we 
+    replace it with a value from another col, here that usually equates to ONS rgn22cd or ltla23cd
+
+    Parameters:
+    - df (pd.DataFrame): The DataFrame in which the replacement operation will be performed.
+    - col1 (str): The name of the column to check for empty or NaN values.
+    - col2 (str): The name of the column from which replacement values will be taken.
+
+    Returns:
+    - pd.DataFrame: The modified DataFrame with replaced values in `col1`.
+    """
     df[col1] = df.apply(lambda row: row[col2] if pd.isnull(row[col1]) or row[col1] == '' else row[col1], axis=1)
     return df
-
-
+### End of GEO data proc
+#
 
 def save_to_html(data, column_order, local_link_column=None, web_link_column=None):
     """
