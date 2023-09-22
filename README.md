@@ -1,7 +1,8 @@
 # Ofsted-ILACS-Scrape-Tool
 On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages
+Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 
-### Documentation ** in progress **
+### We are aware that the daily automated running/update of the script is not working as expected. For now we're running it manually on a weekly basis. 
 
 ## Brief overview
 This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of please check the vitals if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with sugestions. The struture of the code and processes have much scope for improvement, but some of the emphasis was on maintaining a level of readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated and this ultimately impacted a more minimalist approach to codifying a solution.
