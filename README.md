@@ -25,7 +25,7 @@ During the scrape process, because we scan all the related CS inspection pdf rep
 
 ## Known Bugs
 Some LA's inspection reports have PDF encoding or inconsistent data in the published reports that is causing extraction issues & null data. 
-We're working to address these, however the current known ones are:
+We're working to address these, these are:
 - southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade]
 - nottingham, [inspection_framework, inspection_date]
 - redcar and cleveland, [inspection_framework, inspection_date]
