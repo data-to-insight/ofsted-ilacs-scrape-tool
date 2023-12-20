@@ -47,7 +47,11 @@ This part of some ongoing work to access data we can use to enrich the Ofsted da
 
 - Geographical/Geospatial visualisations of results by region, la etc. are in progress. The basis for this is aready in place but some anomolies with how LA/counties boundary data is configured is an issue for some and thus the representation requires a bit more thought. 
 
-- Improved automated workflow. We're currently still running the script manually until fixes can be applied to enable the Git Workflow(s) to run automatically/on a daily basis. We have the needed workflow scripts in place, but there is an ongoing issue in getting the py script to auto-run. Manual runs of the py script(+push/pull action) do correctly initiate the refresh of the html/GitPage.  
+- Improved automated workflow. We're currently still running the script manually until fixes can be applied to enable the Git Workflow(s) to run automatically/on a daily basis. We have the needed workflow scripts in place, but there is an ongoing issue in getting the py script to auto-run. Manual runs of the py script(+push/pull action) do correctly initiate the refresh of the html/GitPage.
+
+- Provide active link access to all previous reports via the web front end. This currently only available when all post-script run files/folders are downloaded(this a v.large download if all LA folders included).
+
+- Further development|bespoke work to improve potential tie-in with existing LA work that could use this tool or the resultant data. 
 
 
 ## Script admin notes
