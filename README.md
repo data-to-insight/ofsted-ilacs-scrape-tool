@@ -54,6 +54,9 @@ This part of some ongoing work to access data we can use to enrich the Ofsted da
 - Further development|bespoke work to improve potential tie-in with existing LA work that could use this tool or the resultant data. 
 
 
+Contact via : datatoinsight.enquiries AT gmail.com
+
+
 ## Script admin notes
 Simplified notes towards repo/script admin processes and enabling/instructions for non-admin running. 
 ### Script run intructions (User)
