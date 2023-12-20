@@ -54,7 +54,7 @@ This part of some ongoing work to access data we can use to enrich the Ofsted da
 - Further development|bespoke work to improve potential tie-in with existing LA work that could use this tool or the resultant data. 
 
 
-Contact via : datatoinsight.enquiries AT gmail.com
+#### Contact via : datatoinsight.enquiries AT gmail.com
 
 
 ## Script admin notes
@@ -66,7 +66,7 @@ If looking to obtain a full instant refresh of the ilacs output, the ofsted_chil
 - Run the script (can right click script file and select 'run in python....'
 - Download the now refreshed ofsted_childrens_services_inspection_scrape.XLSX (Right click, download)
 - Close codespace (Github will auto-remove unused spaces later)
-- 
+  
 ### Run notes (Admin)
 If you experience a permissions error running the setup bash file. 
 
