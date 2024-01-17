@@ -1391,6 +1391,9 @@ def plot_filtered_topics(filtered_topics):
     Returns:
         None
     """
+
+    import matplotlib.pyplot as plt # (intrim impot placement)
+
     # extract words and their weights from a topic string
     def extract_words_weights(topic_string):
         words_weights = [ww.split('*') for ww in topic_string.split(' + ')]
