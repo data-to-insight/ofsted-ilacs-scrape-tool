@@ -86,8 +86,8 @@
 80515,319,Sutton,GL,London,Sutton,E12000007,London,E09000029,E09000029,Sutton,,E09000029,Sutton,England,65081,London Borough,Southampton,London,London
 80516,211,Tower Hamlets,GL,London,Tower Hamlets,E12000007,London,E09000030,E09000030,Tower Hamlets,,E09000030,Tower Hamlets,England,113173,London Borough,Rochford and Southend East,London,London
 80517,320,Waltham Forest,GL,London,Waltham Forest,E12000007,London,E09000031,E09000031,Waltham Forest,,E09000031,Waltham Forest,England,87476,London Borough,St. Helens North,London,London
-80518,212,Wandsworth,E,East of England,Wandsworth,E12000007,London,E09000032,E09000032,Wandsworth,,E09000032,Wandsworth,England,96914,London Borough,Burton,East of England,East of England
-80519,213,Westminster,NW,North West,Westminster,E12000007,London,E09000033,E09000033,Westminster,,E09000033,Westminster,England,59615,London Borough,Cheadle,North West,North West
+80518,212,Wandsworth,GL,London,Wandsworth,E12000007,London,E09000032,E09000032,Wandsworth,,E09000032,Wandsworth,England,96914,London Borough,Burton,East of England,East of England
+80519,213,Westminster,GL,London,Westminster,E12000007,London,E09000033,E09000033,Westminster,,E09000033,Westminster,England,59615,London Borough,Cheadle,North West,North West
 80520,821,Luton,NE,North East,Luton,E12000006,East of England,E06000032,E06000032,Luton,,E06000032,Luton,England,83182,Unitary Authority,Stockton North,North East,North East
 80521,352,Manchester,SE,South East,Manchester,E12000002,North West,E08000003,E08000003,Manchester,,E08000003,Manchester,England,219504,Metropolitan District,Stoke-on-Trent Central,South East,South East
 80522,887,Medway,NE,North East,Medway,E12000008,South East,E06000035,E06000035,Medway,,E06000035,Medway,England,89143,Unitary Authority,Bury St. Edmunds,North East,North East
@@ -108,8 +108,8 @@
 80541,807,Redcar and Cleveland,NW,North West,Redcar and Cleveland,E12000001,North East,E06000003,E06000003,Redcar and Cleveland,,E06000003,Redcar and Cleveland,England,37804,Unitary Authority,Makerfield,North West,North West
 80542,354,Rochdale,YH,Yorkshire and the Humber,Rochdale,E12000002,North West,E08000005,E08000005,Rochdale,,E08000005,Rochdale,England,74298,Metropolitan District,Chippenham,Yorkshire and the Humber,Yorkshire and the Humber
 80543,372,Rotherham,EM,East Midlands,Rotherham,E12000003,Yorkshire and The Humber,E08000018,E08000018,Rotherham,,E08000018,Rotherham,England,78881,Metropolitan District,Maidenhead,East Midlands,East Midlands
-80544,207,Kensington and Chelsea,NW,North West,Royal of Kensington and Chelsea,E12000007,London,E09000020,E09000020,Kensington and Chelsea,,E09000020,Kensington and Chelsea,England,40870,London Borough,Birkenhead,North West,North West
-80545,314,Kingston upon Thames,WM,West Midlands,Royal of Kingston upon Thames,E12000007,London,E09000021,E09000021,Kingston upon Thames,,E09000021,Kingston upon Thames,England,53090,London Borough,Wokingham,West Midlands,West Midlands
+80544,207,Kensington and Chelsea,GL,London,Royal of Kensington and Chelsea,E12000007,London,E09000020,E09000020,Kensington and Chelsea,,E09000020,Kensington and Chelsea,England,40870,London Borough,Birkenhead,North West,North West
+80545,314,Kingston upon Thames,GL,London,Royal of Kingston upon Thames,E12000007,London,E09000021,E09000021,Kingston upon Thames,,E09000021,Kingston upon Thames,England,53090,London Borough,Wokingham,West Midlands,West Midlands
 80546,868,Windsor and Maidenhead,NW,North West,Royal of Windsor & Maidenhead,E12000008,South East,E06000040,E06000040,Windsor and Maidenhead,,E06000040,Windsor and Maidenhead,England,45358,Unitary Authority,Wolverhampton South East,North West,North West
 80547,857,Rutland,YH,Yorkshire and the Humber,Rutland,E12000004,East Midlands,E06000017,E06000017,Rutland,,E06000017,Rutland,England,11371,Unitary Authority,Bromsgrove,Yorkshire and the Humber,Yorkshire and the Humber
 80548,355,Salford,WM,West Midlands,Salford,E12000002,North West,E08000006,E08000006,Salford,,E08000006,Salford,England,93401,Metropolitan District,York Central,West Midlands,West Midlands
