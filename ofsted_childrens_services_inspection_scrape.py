@@ -222,11 +222,13 @@ def format_date(date_str: str, input_format: str, output_format: str) -> str:
     return date_obj.strftime(output_format)
 
 
-def parse_date(date_str, input_format):
-    dt = datetime.strptime(date_str, input_format)
-
-    return dt.date()
-
+def parse_date(date_str, date_format):
+    try:
+        dt = datetime.strptime(date_str, date_format)
+        return dt.date()  # only need date 
+    except (TypeError, ValueError):
+        return None
+    
 
 def format_date_for_report(date_obj, output_format_str):
     """
@@ -325,7 +327,11 @@ def fix_invalid_judgement_table_structure(df):
             df = df.iloc[i+1:].reset_index(drop=True)
             df.columns = headers
             
+            # print(df) # TESTING 180324 RH
+
             return df
+
+    # print(corrected_df) # TESTING 180324 RH
 
     # If no known headers were found at all, return placeholder DataFrame
     return corrected_df
@@ -393,6 +399,8 @@ def fix_misalligned_judgement_table(df):
     df['grade'] = df['grade'].replace("(?i).*requires improvement.*", "requires improvement", regex=True)
     ## end
 
+    print(df['grade']) # TESTING 1803RH
+
     # Get grades IN ORDER (ignoring NaN values and 'nan' strings)
     # print(df['grade'].apply(repr).unique()) # TESTING - check for non-printing chars
     grades = [grade for grade in df['grade'].dropna().tolist() if grade != 'nan']
@@ -418,12 +426,14 @@ def fix_misalligned_judgement_table(df):
         corrected_df.loc[corrected_df['judgement'] == known_judgements[3], 'grade'] = grades[3] # 'care_leavers"
     
 
-    # # TESTING / visual checks
+    # # TESTING 180324 RH
+    # print("START: test in fix_misalligned_judgement_table()")
     # if len(grades) > 4:
     #     print(f"New Post Jan2023 framework identified with {len(grades)} grades: {grades}")
-    #     # display(corrected_df) # TESTING
-    # if len(grades) > 5:
+    # elif len(grades) > 5:
     #     print(f"Unexpectedly high number of grades found ({len(grades)}). Investigate this: {grades}")
+    # else:
+    #     print(grades)
 
     return corrected_df
 
@@ -435,7 +445,7 @@ def extract_inspection_data_update(pdf_content):
     Function to extract key details from inspection reports PDF.
 
     Args:
-        pdf_content (bytes): The content of the PDF file to be processed. 
+        pdf_content (bytes): The raw content of the PDF file to be processed. 
 
     Returns:
         dict: A dictionary containing the extracted details. The dictionary keys are as follows:
@@ -477,13 +487,14 @@ def extract_inspection_data_update(pdf_content):
             full_text += page.extract_text()
 
 
+        # #################
+        # # dev-in-progress
 
         # Generate inspection sentiment score
-        #
+        # 
 
         # Call the get_sentiment_and_topics function
         sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
-
 
         # Convert val to a <general> sentiment text/str for (readable) reporting
         sentiment_summary_str = get_sentiment_category(sentiment_val)
@@ -591,7 +602,7 @@ def extract_inspection_data_update(pdf_content):
 
 
         # format current str dates (as dt objects)
-        start_date_formatted = parse_date(start_date_str, '%d %B %Y') #  str '8 January 2021' 
+        start_date_formatted = parse_date(start_date_str, '%d %B %Y') #  convert from '8 January 2021' (str)
         end_date_formatted = parse_date(end_date_str, '%d %B %Y')
 
         # calculate inspection duration and return framework string
@@ -650,10 +661,21 @@ def extract_inspection_data_update(pdf_content):
             logging.info(df.columns)
 
 
-
     # Get judgement-grades as dict
     inspection_grades_dict = dict(zip(df['judgement'], df['grade']))
     
+    # Ensure not yet introduced judgement is consistent pre-introduction
+    # new care_leavers judgement introduction date (1st January 2023)
+    judgement_chg_date_care_leavers = parse_date("01 January 2023", '%d %B %Y')
+    try:
+        # start_date_formatted is valid and pre the judgement introduction date
+        if start_date_formatted and start_date_formatted < judgement_chg_date_care_leavers:
+            # replace with default str val if inspection pre-dates judgement type
+            inspection_grades_dict['care_leavers'] = 'inspection_pre_dates_judgement' # reset/coerce consistency in val
+
+    except TypeError: # invalid type
+        print("Date comparison failed due to invalid input.")
+
 
     return {
         # main inspection details
@@ -802,9 +824,10 @@ def process_provider_links(provider_links):
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
                         # TESTING
-                        #print("{}".format(local_authority, overall_effectiveness,impact_of_leaders_grade, help_and_protection_grade, in_care_grade, care_leavers_grade, inspection_start_date_formatted))
-                        print(f"{local_authority}")
-                                                             
+                        # print("{}".format(local_authority, overall_effectiveness,impact_of_leaders_grade, help_and_protection_grade, in_care_grade, care_leavers_grade, inspection_start_date_formatted))
+                        print(f"{local_authority}") # Gives listing output in script run of 'data/inspection reports/urn name_of_la'
+                        print(f"{la_name_str}: {in_care_grade}|{care_leavers_grade}")                          
+
                         data.append({
                                         'urn': urn,
                                         'local_authority': la_name_str,
@@ -836,6 +859,25 @@ def process_provider_links(provider_links):
 
                     
                     found_inspection_link = True # Flag to ensure data reporting on only the most recent inspection
+
+    # print(data) # TEST 180324 RH
+    # import sys
+    # class UrnNotFoundException(Exception):
+    #     pass
+
+    # def check_urn_and_stop(data, target_urn):
+    #     for item in data:
+    #         if item['urn'] == target_urn:
+    #             print(f"URN {target_urn} found. Stopping process.")
+    #             raise UrnNotFoundException(f"URN {target_urn} found.")
+    #     print("Target URN not found. Continuing process.")
+
+    # try:
+    #     check_urn_and_stop(data, '80490')
+    # except UrnNotFoundException as e:
+    #     print(e)
+    #     sys.exit(1)  # Exit the script/program
+
     return data
 
 
