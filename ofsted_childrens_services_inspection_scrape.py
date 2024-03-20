@@ -327,11 +327,7 @@ def fix_invalid_judgement_table_structure(df):
             df = df.iloc[i+1:].reset_index(drop=True)
             df.columns = headers
             
-            # print(df) # TESTING 180324 RH
-
             return df
-
-    # print(corrected_df) # TESTING 180324 RH
 
     # If no known headers were found at all, return placeholder DataFrame
     return corrected_df
@@ -398,8 +394,6 @@ def fix_misalligned_judgement_table(df):
     # + Some RI text has further comment that we don't want, i.e. 'RI, *to become good*'
     df['grade'] = df['grade'].replace("(?i).*requires improvement.*", "requires improvement", regex=True)
     ## end
-
-    print(df['grade']) # TESTING 1803RH
 
     # Get grades IN ORDER (ignoring NaN values and 'nan' strings)
     # print(df['grade'].apply(repr).unique()) # TESTING - check for non-printing chars
@@ -653,6 +647,7 @@ def extract_inspection_data_update(pdf_content):
         if column in df.columns:
             df[column] = df[column].replace({r'\b(be good\w*)\b': 'requires improvement', '(?i)nan': 'data_unreadable'}, regex=True)
         else:
+            # [TESTING]
             # print(f"Column '{column}' not found in the DataFrame.")
             # print(df.columns)
 
@@ -686,8 +681,8 @@ def extract_inspection_data_update(pdf_content):
         'inspection_framework':     inspection_framework_str,
         'impact_of_leaders_grade':  inspection_grades_dict['impact_of_leaders'],
         'help_and_protection_grade': inspection_grades_dict['help_and_protection'],
-        'in_care_grade':            inspection_grades_dict['in_care'],                            
-        'care_leavers_grade':       inspection_grades_dict['care_leavers'],     
+        'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
+        'in_care_grade':            inspection_grades_dict['in_care'],                              
 
         # inspection sentiments (in progress)
         'sentiment_score':          round(sentiment_val, 4), 
@@ -824,9 +819,9 @@ def process_provider_links(provider_links):
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
                         # TESTING
-                        # print("{}".format(local_authority, overall_effectiveness,impact_of_leaders_grade, help_and_protection_grade, in_care_grade, care_leavers_grade, inspection_start_date_formatted))
-                        print(f"{local_authority}") # Gives listing output in script run of 'data/inspection reports/urn name_of_la'
-                        print(f"{la_name_str}: {in_care_grade}|{care_leavers_grade}")                          
+                        # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
+
+                        print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
 
                         data.append({
                                         'urn': urn,
@@ -843,8 +838,8 @@ def process_provider_links(provider_links):
                                         'help_and_protection_grade': help_and_protection_grade,
                                         
                                         # 'care_and_care_leavers_grade': care_and_care_leavers_grade,
-                                        'care_leavers_grade': care_leavers_grade,
                                         'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
+                                        'care_leavers_grade': care_leavers_grade,
 
                                         'sentiment_score': sentiment_score,
                                         'sentiment_summary': sentiment_summary,
@@ -1592,7 +1587,7 @@ ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, ke
 
 
 #
-# Fix(tmp) towards resultant export types/excel cols
+# Fix(tmp) towards resultant export data types/excel cols type or format
 
 # 020523 - Appears as though this is not having the desired effect once export file opened in Excel.
 # Needs looking at again i.e. Urn still exporting as 'text' column
@@ -1604,7 +1599,10 @@ ilacs_inspection_summary_df['inspectors_inspections_count'] = pd.to_numeric(ilac
 
 
 
-# Export summary data
+
+
+
+# Export summary data (visible outputs)
 #
 
 # EXCEL Output
@@ -1620,7 +1618,7 @@ column_order = [
                 'inspection_link','overall_effectiveness_grade','inspection_framework','inspector_name',
                 'inspection_start_date',
                 'local_link_to_all_inspections',
-                'impact_of_leaders_grade','help_and_protection_grade','care_leavers_grade','in_care_grade',
+                'impact_of_leaders_grade','help_and_protection_grade','in_care_grade','care_leavers_grade',
                 'inspectors_inspections_count'
                 ]
 
