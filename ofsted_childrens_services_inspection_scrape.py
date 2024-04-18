@@ -1540,7 +1540,7 @@ ilacs_inspection_summary_df['urn'] = ilacs_inspection_summary_df['urn'].astype('
 local_authorities_lookup_df['urn'] = pd.to_numeric(local_authorities_lookup_df['urn'], errors='coerce')
 
 # Define what data is required to be merged in
-additional_data_cols = ['la_code', 'region_code', 'ltla23cd']
+additional_data_cols = ['la_code', 'region_code', 'ltla23cd', 'stat_neighbours']
 ilacs_inspection_summary_df = merge_and_select_columns(ilacs_inspection_summary_df, local_authorities_lookup_df, key_col, additional_data_cols)
 
 # re-organise column structure now with new col(s)
