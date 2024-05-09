@@ -120,22 +120,43 @@ nltk.download('stopwords')
 #
 # Function defs
 
-def get_soup(url):
+def get_soup(url, retries=3, delay=5):
     """
-    Given a URL, returns a BeautifulSoup object.
-    Args: url (str): The URL to fetch and parse.
-    Returns: BeautifulSoup: The parsed HTML content.
+    Given a URL, returns a BeautifulSoup object + request error handling
+    Args:
+        url (str):      The URL to fetch and parse
+        retries (int):  Number of retries on network errors
+        delay (int):    Delay between retries in seconds
+    Returns:
+        BeautifulSoup: The parsed HTML content, or None if an error occurs
     """
-    timeout_seconds = 10 # lets not assume the Ofsted page is up
+    timeout_seconds = 10  # lets not assume the Ofsted page is up, avoid over-pinging
 
-    try:
-        response = requests.get(url, timeout=timeout_seconds)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
-        return soup
-    except RequestException as e:
-        print(f"An error occurred while fetching the URL '{url}': {e}")
-        return None
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, timeout=timeout_seconds)
+            response.raise_for_status()  # any HTTP errors?
+            soup = BeautifulSoup(response.content, 'html.parser')
+            return soup
+        except Timeout:
+            print(f"Timeout getting URL '{url}' on attempt {attempt + 1}. Retrying after {delay} secs...")
+            time.sleep(delay)
+        except HTTPError as e:
+            print(f"HTTP error getting URL '{url}': {e}")
+            return None  # end retries on client and server errors
+        except RequestException as e:
+            print(f"Request error getting URL '{url}': {e}")
+            if attempt < retries - 1:
+                print(f"Retrying after {delay} secs...")
+                time.sleep(delay) # pause to assist not getting blocked
+            else:
+                print("Max rtry attempts reached, giving up")
+                return None
+        except Exception as e:
+            print(f"Unexpected error occurred: {e}")
+            return None
+
+    return None  # All the retries failed / stop point
 
 
 def clean_provider_name(name):
