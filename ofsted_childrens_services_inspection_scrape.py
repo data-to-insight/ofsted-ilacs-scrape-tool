@@ -22,8 +22,8 @@ pdf_data_capture = True # True is default (scrape within pdf inspection reports 
                         # This impacts run time E.g False == ~1m20 / True == ~ 4m10
                         # False == only pdfs/list of LA's+link to most recent exported. Not inspection results.
 
-
-
+# Used to toggle if the output xlsx should include full text for each PDF scraped (used for textual analysis)
+full_text_capture = False
 
 
 #
@@ -479,7 +479,7 @@ def extract_inspection_data_update(pdf_content):
         full_text = ''
         for page in reader.pages:
             full_text += page.extract_text()
-
+        
 
         # #################
         # # dev-in-progress
@@ -671,31 +671,29 @@ def extract_inspection_data_update(pdf_content):
     except TypeError: # invalid type
         print("Date comparison failed due to invalid input.")
 
+    return_dict = {
+            # main inspection details
+            'inspector_name':           inspector_name, 
+            'overall_inspection_grade': inspection_grades_dict['overall_effectiveness'],
+            'inspection_start_date':    start_date_formatted,
+            'inspection_end_date':      end_date_formatted,
+            'inspection_framework':     inspection_framework_str,
+            'impact_of_leaders_grade':  inspection_grades_dict['impact_of_leaders'],
+            'help_and_protection_grade': inspection_grades_dict['help_and_protection'],
+            'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
+            'in_care_grade':            inspection_grades_dict['in_care'],                              
 
-    return {
-        # main inspection details
-        'inspector_name':           inspector_name, 
-        'overall_inspection_grade': inspection_grades_dict['overall_effectiveness'],
-        'inspection_start_date':    start_date_formatted,
-        'inspection_end_date':      end_date_formatted,
-        'inspection_framework':     inspection_framework_str,
-        'impact_of_leaders_grade':  inspection_grades_dict['impact_of_leaders'],
-        'help_and_protection_grade': inspection_grades_dict['help_and_protection'],
-        'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
-        'in_care_grade':            inspection_grades_dict['in_care'],                              
+            # inspection sentiments (in progress)
+            'sentiment_score':          round(sentiment_val, 4), 
+            'sentiment_summary':        sentiment_summary_str,
+            'main_inspection_topics':   key_inspection_themes_lst,
 
-        # inspection sentiments (in progress)
-        'sentiment_score':          round(sentiment_val, 4), 
-        'sentiment_summary':        sentiment_summary_str,
-        'main_inspection_topics':   key_inspection_themes_lst,
-
-        'table_rows_found':len(df)
-        }
-
-
-
-
-
+            'table_rows_found':len(df)
+            }
+    if full_text_capture == True:
+        return_dict['full_text'] = full_text
+        
+    return return_dict
 
 
 def process_provider_links(provider_links):
@@ -774,7 +772,7 @@ def process_provider_links(provider_links):
                     report_published_date = format_date(report_published_date_str, '%d %B %Y', '%d/%m/%y')
 
                     # Now get the in-document data
-                    if pdf_data_capture:
+                    if pdf_data_capture: 
                         # Opt1 : ~x4 slower runtime
                         # Only here if we have set PDF text scrape flag to True
                         # Turn this off, speeds up script if we only need the inspection documents themselves to be retrieved
@@ -808,6 +806,7 @@ def process_provider_links(provider_links):
 
 
 
+
                         # format dates for output                       
                         inspection_start_date_formatted = format_date_for_report(inspection_start_date, "%d/%m/%Y")
                         inspection_end_date_formatted = format_date_for_report(inspection_end_date, "%d/%m/%Y")
@@ -822,30 +821,56 @@ def process_provider_links(provider_links):
                         # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
                         print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
+                        if full_text_capture == True:
+                                        data.append({
+                                            'urn': urn,
+                                            'local_authority': la_name_str,
+                                            'inspection_link': inspection_link,
+                                            'overall_effectiveness_grade': overall_effectiveness,
+                                            'inspection_framework': inspection_framework,
+                                            'inspector_name': inspector_name,
+                                            'inspection_start_date': inspection_start_date_formatted,
+                                            'inspection_end_date': inspection_end_date_formatted,
+                                            'publication_date': report_published_date,
+                                            'local_link_to_all_inspections': provider_dir_link,
+                                            'impact_of_leaders_grade': impact_of_leaders_grade,
+                                            'help_and_protection_grade': help_and_protection_grade,
+                                            
+                                            # 'care_and_care_leavers_grade': care_and_care_leavers_grade,
+                                            'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
+                                            'care_leavers_grade': care_leavers_grade,
 
-                        data.append({
-                                        'urn': urn,
-                                        'local_authority': la_name_str,
-                                        'inspection_link': inspection_link,
-                                        'overall_effectiveness_grade': overall_effectiveness,
-                                        'inspection_framework': inspection_framework,
-                                        'inspector_name': inspector_name,
-                                        'inspection_start_date': inspection_start_date_formatted,
-                                        'inspection_end_date': inspection_end_date_formatted,
-                                        'publication_date': report_published_date,
-                                        'local_link_to_all_inspections': provider_dir_link,
-                                        'impact_of_leaders_grade': impact_of_leaders_grade,
-                                        'help_and_protection_grade': help_and_protection_grade,
-                                        
-                                        # 'care_and_care_leavers_grade': care_and_care_leavers_grade,
-                                        'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
-                                        'care_leavers_grade': care_leavers_grade,
+                                            'sentiment_score': sentiment_score,
+                                            'sentiment_summary': sentiment_summary,
+                                            'main_inspection_topics': main_inspection_topics,
+                                            'full_text': inspection_data_dict['full_text']
+                                        })
 
-                                        'sentiment_score': sentiment_score,
-                                        'sentiment_summary': sentiment_summary,
-                                        'main_inspection_topics': main_inspection_topics
+                        else:
+                            data.append({
+                                            'urn': urn,
+                                            'local_authority': la_name_str,
+                                            'inspection_link': inspection_link,
+                                            'overall_effectiveness_grade': overall_effectiveness,
+                                            'inspection_framework': inspection_framework,
+                                            'inspector_name': inspector_name,
+                                            'inspection_start_date': inspection_start_date_formatted,
+                                            'inspection_end_date': inspection_end_date_formatted,
+                                            'publication_date': report_published_date,
+                                            'local_link_to_all_inspections': provider_dir_link,
+                                            'impact_of_leaders_grade': impact_of_leaders_grade,
+                                            'help_and_protection_grade': help_and_protection_grade,
+                                            
+                                            # 'care_and_care_leavers_grade': care_and_care_leavers_grade,
+                                            'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
+                                            'care_leavers_grade': care_leavers_grade,
 
-                                    })
+                                            'sentiment_score': sentiment_score,
+                                            'sentiment_summary': sentiment_summary,
+                                            'main_inspection_topics': main_inspection_topics,
+                                        })
+
+
                         
                     else:
                         # Opt2 : ~x4 faster runtime
@@ -1536,8 +1561,10 @@ local_authorities_lookup_df = import_csv_from_folder(import_la_data_path) # brin
 
 # Ensure key column consistency
 key_col = 'urn'
-ilacs_inspection_summary_df['urn'] = ilacs_inspection_summary_df['urn'].astype('int64')
-local_authorities_lookup_df['urn'] = pd.to_numeric(local_authorities_lookup_df['urn'], errors='coerce')
+# str/object dtype used over int as it handles empty rows better
+# (not that there should be empty rows but I can't check until it's got through)
+ilacs_inspection_summary_df['urn'] = ilacs_inspection_summary_df['urn'].astype('str')
+local_authorities_lookup_df['urn'] = local_authorities_lookup_df['urn'].astype('str')
 
 # Define what data is required to be merged in
 additional_data_cols = ['la_code', 'region_code', 'ltla23cd', 'stat_neighbours']
@@ -1626,3 +1653,5 @@ save_to_html(ilacs_inspection_summary_df, column_order, local_link_column='local
 
 
 print("Last output date and time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+print("hi")
