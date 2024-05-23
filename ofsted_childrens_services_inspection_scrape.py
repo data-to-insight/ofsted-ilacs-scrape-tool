@@ -75,7 +75,7 @@ from datetime import datetime
 import nltk
 import json
 import logging
-
+import git
 
 # pdf search/data extraction
 try:
@@ -116,6 +116,28 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 
+
+
+# Path to your git repository
+repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
+
+# Initialize the repository object
+repo = git.Repo(repo_path)
+
+# Get the current status of the repository
+changed_files = [item.a_path for item in repo.index.diff(None)]
+untracked_files = repo.untracked_files
+
+# Combine modified and untracked files
+all_changed_files = changed_files + untracked_files
+
+# Display the changed files
+print("Modified/Untracked files:")
+for file in all_changed_files:
+    print(file)
+
+
+break
 
 #
 # Function defs
