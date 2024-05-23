@@ -6,6 +6,7 @@ xlsxwriter
 PyPDF2
 requests
 beautifulsoup4
+GitPython
 
 # 080424 RH
 # Latest scipy version not compatible due to : scipy.linalg functions tri, triu & tril are deprecated and will be removed in SciPy 1.13.
