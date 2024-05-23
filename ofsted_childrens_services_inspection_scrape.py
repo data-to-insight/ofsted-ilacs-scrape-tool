@@ -23,7 +23,7 @@ pdf_data_capture = True # True is default (scrape within pdf inspection reports 
                         # False == only pdfs/list of LA's+link to most recent exported. Not inspection results.
 
 
-repo_ilacs_reports_path = '/workspaces/ofsted-ilacs-scrape-tool/export_data/inspection_reports'
+repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
 
 
 
@@ -1198,16 +1198,20 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
 
     # Obtain list of those inspection reports that have updates
     # Provides easier visual on new/most-recent on refreshed web summary page
+
+    # specific folder to monitor for changes
+    inspection_reports_folder = 'export_data/inspection_reports'
+
     try:
-        # Init the repo object (so we know where we're monitoring for changes)
-        repo = git.Repo(repo_ilacs_reports_path) 
+        # Init the repo object (so we know starting point for monitoring changes)
+        repo = git.Repo(repo_path) 
     except Exception as e:
         print(f"Error initialising defined repo path for inspection reports: {e}")
         raise
 
     try:
         # Get current status of repo
-        changed_files = [item.a_path for item in repo.index.diff(None)]
+        changed_files = [item.a_path for item in repo.index.diff(None) if item.a_path.startswith(inspection_reports_folder)]
         # untracked_files = repo.untracked_files
 
         # # Combine modified and untracked files
