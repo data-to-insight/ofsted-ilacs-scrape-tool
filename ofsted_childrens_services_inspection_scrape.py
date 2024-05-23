@@ -23,6 +23,8 @@ pdf_data_capture = True # True is default (scrape within pdf inspection reports 
                         # False == only pdfs/list of LA's+link to most recent exported. Not inspection results.
 
 
+repo_ilacs_reports_path = '/workspaces/ofsted-ilacs-scrape-tool/export_data/inspection_reports'
+
 
 
 
@@ -118,26 +120,6 @@ nltk.download('stopwords')
 
 
 
-# Path to your git repository
-repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
-
-# Initialize the repository object
-repo = git.Repo(repo_path)
-
-# Get the current status of the repository
-changed_files = [item.a_path for item in repo.index.diff(None)]
-untracked_files = repo.untracked_files
-
-# Combine modified and untracked files
-all_changed_files = changed_files + untracked_files
-
-# Display the changed files
-print("Modified/Untracked files:")
-for file in all_changed_files:
-    print(file)
-
-
-break
 
 #
 # Function defs
@@ -1214,7 +1196,34 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     data.rename(columns={'Ltla23Cd': 'LTLA23CD', 'Urn': 'URN'}, inplace=True)
 
 
+    # Obtain list of those inspection reports that have updates
+    # Provides easier visual on new/most-recent on refreshed web summary page
+    try:
+        # Init the repo object (so we know where we're monitoring for changes)
+        repo = git.Repo(repo_ilacs_reports_path) 
+    except Exception as e:
+        print(f"Error initialising defined repo path for inspection reports: {e}")
+        raise
 
+    try:
+        # Get current status of repo
+        changed_files = [item.a_path for item in repo.index.diff(None)]
+        # untracked_files = repo.untracked_files
+
+        # # Combine modified and untracked files
+        # all_changed_files = changed_files + untracked_files
+
+        # # Display the changed files (if needed)
+        # print("Modified/Untracked files:")
+        # for file in changed_files:
+        #     print(file)
+
+        # changed repo files into a list for later use
+        las_with_new_inspection_list = [file for file in changed_files]
+
+    except Exception as e:
+        print(f"Error processing repository: {e}")
+        raise
 
     # Initialise HTML content with title and CSS
     html_content = f"""
@@ -1245,8 +1254,8 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
         <h1>{page_title}</h1>
         <p>{intro_text}</p>
         <p>{disclaimer_text}</p>
-        <p><b>Last updated: {datetime.now().strftime("%d %m %Y %H:%M")}</b></p>
-
+        <p><b>Summary data last updated: {datetime.now().strftime("%d %m %Y %H:%M")}</b></p>
+        <p><b>LA inspections last updated: {las_with_new_inspection_list}</b></p>
         <div class="container">
     """
 
@@ -1260,7 +1269,7 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     with open("index.html", "w") as f:
         f.write(html_content)
 
-    print("index.html successfully created!")
+    print("ILACS summary page as index.html successfully created.")
 
 
 
@@ -1669,3 +1678,5 @@ save_to_html(ilacs_inspection_summary_df, column_order, local_link_column='local
 
 
 print("Last output date and time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+
