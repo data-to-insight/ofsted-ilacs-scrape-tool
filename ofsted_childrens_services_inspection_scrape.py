@@ -1196,6 +1196,9 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     data.rename(columns={'Ltla23Cd': 'LTLA23CD', 'Urn': 'URN'}, inplace=True)
 
 
+    # Generate Most-recent-reports list
+    # Remove this block if running locally (i.e. not in GitCodespace)
+    # 
     # Obtain list of those inspection reports that have updates
     # Provides easier visual on new/most-recent on refreshed web summary page
 
@@ -1214,20 +1217,15 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
         changed_files = [item.a_path for item in repo.index.diff(None) if item.a_path.startswith(inspection_reports_folder)]
         # untracked_files = repo.untracked_files
 
-        # # Combine modified and untracked files
-        # all_changed_files = changed_files + untracked_files
-
-        # # Display the changed files (if needed)
-        # print("Modified/Untracked files:")
-        # for file in changed_files:
-        #     print(file)
-
         # changed repo files into a list for later use
         las_with_new_inspection_list = [file for file in changed_files]
 
     except Exception as e:
         print(f"Error processing repository: {e}")
         raise
+# end of Most-recent-reports generate
+# Chk + remove onward use of var las_with_new_inspection_list if running locally
+
 
     # Initialise HTML content with title and CSS
     html_content = f"""
