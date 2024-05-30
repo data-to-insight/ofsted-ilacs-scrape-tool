@@ -6,8 +6,8 @@ on:
   # push:
   #   branches: ["main"]
   # On pull
-  pull_request:
-    branches: ["main"]
+  # pull_request:
+  #   branches: ["main"]
   # Add manual trigger from Actions tab
   workflow_dispatch:
   # Schedule run at 9 AM UTC every day
@@ -39,17 +39,15 @@ jobs:
       # Show Current Directory and List Files
       - name: Show Current Directory
         run: |
-          pwd
-          ls
+          echo "Current directory: $(pwd)"
+          echo "Listing files:"
+          ls -la
 
       # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if ! pip install -r requirements.txt; then
-            echo "Failed to install dependencies!"
-            exit 1
-          fi
+          pip install -r requirements.txt
 
       # Ensure Script is Executable
       - name: Ensure Script is Executable
@@ -57,7 +55,9 @@ jobs:
 
       # Run the scrape
       - name: Run Python script
-        run: python ofsted_childrens_services_inspection_scrape.py
+        run: |
+          echo "Running scrape script"
+          python ofsted_childrens_services_inspection_scrape.py
 
       # Configure Git and Commit changes
       - name: Commit and Push changes
