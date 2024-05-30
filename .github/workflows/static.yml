@@ -3,12 +3,12 @@ name: Deploy static content to Pages
 
 # Run events
 on:
-  # On push
-  push:
-    branches: ["main"]
-  # On pull
-  pull_request:
-    branches: ["main"]
+  # # On push
+  # push:
+  #   branches: ["main"]
+  # # On pull
+  # pull_request:
+  #   branches: ["main"]
   # Add manual trigger from Actions tab
   workflow_dispatch:
   # Schedule run at 9 AM UTC every day
