@@ -76,7 +76,6 @@ import re
 from datetime import datetime
 import nltk
 import json
-import logging
 import git
 
 # pdf search/data extraction
@@ -105,17 +104,25 @@ try:
 except ModuleNotFoundError:
     print("Please install 'scikit-learn' using pip")
 
+# Configure logging/logging module
+import warnings
+import logging
+
+# wipe / reset the logging file 
+with open('output.log', 'w'):
+    # comment out if maintaining ongoing/historic log
+    pass
 
 # Keep warnings quiet unless priority
-import warnings
 logging.getLogger('org.apache.pdfbox').setLevel(logging.ERROR)
 warnings.filterwarnings('ignore')
-    
-# Configure the logging module
+
 logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 
-nltk.download('punkt')
-nltk.download('stopwords')
+
+# text analysis libs
+nltk.download('punkt')      # tokeniser models/sentence segmentation
+nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
 
 
 
