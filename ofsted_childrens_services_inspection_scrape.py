@@ -58,25 +58,34 @@ url = url_stem + search_url + max_page_results_url
 # url = url_stem + url_search_stem + '&level_1_types=' + str(search_category) + '&level_2_types=' + str(search_sub_category) + max_page_results_url
 
 
-
-
 #
 # Script admin settings
 
-
 # Non-standard modules that might need installing
 import os
+import io
 import requests
+from requests.exceptions import RequestException #  HTTP requests excep' class
+
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-from requests.exceptions import RequestException
-import io
 import re       
 from datetime import datetime
-import nltk
 import json
 import git
+
+import nltk
+nltk.download('punkt')      # tokeniser models/sentence segmentation
+nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
+
+# nlp stuff for sentiment
+try:
+    from textblob import TextBlob
+    from gensim import corpora, models
+except ModuleNotFoundError:
+    print("Please install 'textblob' and 'gensim' using pip")
+
 
 # pdf search/data extraction
 try:
@@ -85,12 +94,6 @@ try:
 except ModuleNotFoundError:
     print("Please install 'tabula-py' and 'PyPDF2' using pip")
 
-# nlp stuff for sentiment
-try:
-    from textblob import TextBlob
-    from gensim import corpora, models
-except ModuleNotFoundError:
-    print("Please install 'textblob' and 'gensim' using pip")
 
 # handle optional excel export+active file links
 try:
@@ -118,13 +121,6 @@ logging.getLogger('org.apache.pdfbox').setLevel(logging.ERROR)
 warnings.filterwarnings('ignore')
 
 logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime)s - %(message)s')
-
-
-# text analysis libs
-nltk.download('punkt')      # tokeniser models/sentence segmentation
-nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
-
-
 
 
 
