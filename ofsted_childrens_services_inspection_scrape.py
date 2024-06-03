@@ -1236,7 +1236,7 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
 
     
 
-    # current time, add one hour to the current time to correct git server time
+    # current time, add one hour to the current time to correct non-UK Git server time
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %m %Y %H:%M")
 
     # init HTML content with title and CSS
