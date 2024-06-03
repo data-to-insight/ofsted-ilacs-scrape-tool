@@ -1226,11 +1226,12 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
         # remove the inspection_reports_folder path prefix from the file paths, create last updated list 
         las_with_new_inspection_list = [os.path.relpath(file, inspection_reports_folder) for file in changed_files]
 
+        
     except Exception as e:
         print(f"Error processing repository: {e}")
         raise
 # end of Most-recent-reports generate
-# Chk + remove onward use of var las_with_new_inspection_list if running locally
+# Chk + remove onward use of variable las_with_new_inspection_list IF running locally
 
 
     # init HTML content with title and CSS
