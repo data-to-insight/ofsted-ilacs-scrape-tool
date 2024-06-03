@@ -53,13 +53,6 @@
           </div>
   </div>
 </header>
-<div class="container">
-  <div class="banners banners--big-listen">
-    <img class="banners--big-listen__logo" alt="Big Listen Logo" src="/images/big-listen.png">
-    <p class="banners--big-listen__text">Have your say on our work:</p>
-    <a class="banners--big-listen__link" href="https://www.gov.uk/government/consultations/ofsted-big-listen?utm_source=reports+website&utm_medium=banner&utm_campaign=Biglisten_mar24">Ofsted's Big Listen</a>
-  </div>
-</div>
               <div class="container">
         <ol class="breadcrumbs">
             <li class="crumb">
