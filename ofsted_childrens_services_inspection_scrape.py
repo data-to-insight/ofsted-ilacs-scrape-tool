@@ -73,7 +73,7 @@ from bs4 import BeautifulSoup
 import re       
 from datetime import datetime, timedelta # timedelta enables server time adjustment
 import json
-import git
+import git # possible case for just: from git import Repo
 
 import nltk
 nltk.download('punkt')      # tokeniser models/sentence segmentation
@@ -1217,22 +1217,34 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     except Exception as e:
         print(f"Error initialising defined repo path for inspection reports: {e}")
         raise
-
+    
     try:
-        # get current status of repo
+    # Get current status of repo
         changed_files = [item.a_path for item in repo.index.diff(None) if item.a_path.startswith(inspection_reports_folder)]
-        # untracked_files = repo.untracked_files
+        untracked_files = [item for item in repo.untracked_files if item.startswith(inspection_reports_folder)]
 
-        # remove the inspection_reports_folder path prefix from the file paths, create last updated list 
-        las_with_new_inspection_list = [os.path.relpath(file, inspection_reports_folder) for file in changed_files]
+        # Combine tracked and untracked changes
+        all_changed_files = changed_files + untracked_files
 
-        # print(las_with_new_inspection_list)
+        # Remove the inspection_reports_folder path prefix from the file paths
+        las_with_new_inspection_list = [os.path.relpath(file, inspection_reports_folder) for file in all_changed_files]
+
+        # Remove "/children's services inspection" and ".pdf" from each list item string
+        # overwrite with cleaned list items. 
+        las_with_new_inspection_list = [re.sub(r"/children's services inspection|\.pdf$", "", file) for file in las_with_new_inspection_list]
+
+        # # Verification output only
+        # print("Changed files:", changed_files)
+        # print("Untracked files:", untracked_files)
+        # print("All changed files:", all_changed_files)
+        print("Last updated list:", las_with_new_inspection_list)
 
     except Exception as e:
         print(f"Error processing repository: {e}")
         raise
-# end of Most-recent-reports generate
-# Chk + remove onward use of variable las_with_new_inspection_list IF running locally
+
+# end of most-recent-reports generate
+# Note: IF running this script locally, not in Git|Codespaces - Need to chk + remove any onward use of var: las_with_new_inspection_list 
 
     
 
