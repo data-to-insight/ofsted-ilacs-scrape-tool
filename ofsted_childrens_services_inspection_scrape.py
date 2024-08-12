@@ -78,11 +78,13 @@ import git # possible case for just: from git import Repo
 import nltk
 nltk.download('punkt')      # tokeniser models/sentence segmentation
 nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
+nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
 
 # nlp stuff for sentiment
 try:
     from textblob import TextBlob
     from gensim import corpora, models
+    # sh "/Applications/Python 3.11/Install Certificates.command"
 except ModuleNotFoundError:
     print("Please install 'textblob' and 'gensim' using pip")
 
