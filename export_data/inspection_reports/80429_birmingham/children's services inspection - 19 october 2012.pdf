@@ -53,6 +53,14 @@
           </div>
   </div>
 </header>
+
+<div class="banners banners--big-listen">
+  <div class="container">
+    <div class="banners--big-listen__text">
+      <p>From September 2024, Ofsted no longer makes an overall effectiveness judgement in inspections of state-funded schools.</p>
+    </div>
+  </div>
+</div>
               <div class="container">
         <ol class="breadcrumbs">
             <li class="crumb">
