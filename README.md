@@ -2,10 +2,13 @@
 On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages
 Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 -
-### The automated daily update of this ILACS summary page is not currently running; in the intrim we're running it manually on a weekly basis.  
+### The inspection reports output summary is refreshed on a weekly basis, usually on the first working day.   
 
-## Brief overview
-This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of please check the vitals if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data and this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
+## Initial problem brief
+D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published mcuh more regularly, can we access that data/results directly ourselves and re-create a similar summary to the ADCS version. Perhaps if we can, is there any other data elements that we can bring in to increase the potential use-cases for this data. 
+
+## Solution overview
+This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of 'please check the vitals' if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of code readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data; this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
 
 The results structure and returned data is based almost entirely on the originating ILACS Summary produced/refreshed periodically by the ADCS; the use of which has previously underpinned several D2I projects. We're aware of several similar collections of longer-term work on and surrounding the Ofsted results theme, and would be happy to hear from those who perhaps also have bespoke ideas for changes here that would assist their own work. 
 
@@ -18,10 +21,10 @@ There are currently three exports from the script.
 Generated (as ./index.html) to display a refreshed subset of the ILACS results summary. 
 
 ### Results Overview Summary
-The complete ILACS overview spreadsheet, exported to the git project root ./ as an .xlsx file for ease and also accessible via a download link from the generated results page (index.html)
+The complete ILACS overview spreadsheet, exported to the git project root ./ as an .xlsx file for ease and also accessible via a download link from the generated web-site results page (index.html)
 
 ### All CS inspections reports
-During the scrape process, because we scan all the related CS inspection pdf reports for each LA; these can be/are packaged up into tidy LA named folders (urn_LAname) within the git repo (./export_data/inspection_reports/). There is a lot of data here, but if you download the entire export_data folder after the script has run, with the overview summary sheet then the local_inspection_reports column active links will work and you can then easily access each LA's previous reports all in once place via the supplied hyperlink(s). *Note:* This is currently not an option when viewing the results on the web page/Git Pages.
+During the scrape process, because we scan all the related CS inspection pdf reports for each LA; these can be/are packaged up into tidy LA named folders (urn_LAname) within the git repo (./export_data/inspection_reports/). There is a lot of data here, but if you download the entire export_data folder after the script has run, with the overview summary sheet then the local_inspection_reports column active links will work and you can then easily access each LA's previous reports all in once place via the supplied hyperlink(s). *Note:* This is currently not an option when viewing the results on the web page/Git Pages; but we are happy to clarify how to access/use this element if you get in touch. 
 
 ## Known Bugs
 Some LA's inspection reports have PDF encoding or inconsistent data in the published reports that is causing extraction issues & null data. 
@@ -42,6 +45,7 @@ This part of some ongoing work to access data we can use to enrich the Ofsted da
 
 
 ## Future work
+- We have started some early placeholder work on sentiment analysis of the inspection reports. At the moment, this is only shown in the Excel download summary (not on the web based summary to improve readability). The positive/negative sentiment within the inspection reports needs some further work developing both the thresholds and more detailed work on better understanding the report text. 
 
 - Some of the in-progress efforts are included as a point of discuss or stepping stone for others to develop within the download .xlsx file. For example a set of columns detailing simplistic inspection sentiment analysis based on the language used in the most recent report (ref cols: sentiment_score, inspectors_median_sentiment_score, sentiment_summary, main_inspection_topics). *Note that the inclusion of these columns does not dictate that the scores are accurate, these additions are a starting point for discussion|suggestions and development!!*
 
