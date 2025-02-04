@@ -54,11 +54,10 @@
   </div>
 </header>
 
-<div class="banners banners--big-listen">
-  <div class="container">
-    <div class="banners--big-listen__text">
-      <p>From September 2024, Ofsted no longer makes an overall effectiveness judgement in inspections of state-funded schools.</p>
-    </div>
+<div class="container">
+  <div class="banners banners--big-listen banners--bigger-font">
+    <p class="banners--big-listen__text">Improving the way Ofsted inspects education: <a class="banners--big-listen__link" href="https://www.gov.uk/government/consultations/improving-the-way-ofsted-inspects-education?utm_source=reports+website&utm_medium=banner&utm_campaign=ofsted_2025">share your views</a>
+    </p>
   </div>
 </div>
               <div class="container">
