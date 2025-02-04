@@ -90,12 +90,15 @@ nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exce
 #     print("Please install 'textblob' and 'gensim' using pip")
 
 
-# # pdf search/data extraction
-# try:
-#     import tabula  
-#     import PyPDF2  
-# except ModuleNotFoundError:
-#     print("Please install 'tabula-py' and 'PyPDF2' using pip")
+# pdf search/data extraction
+try:
+    import tabula  
+    import PyPDF2   # continue use for now, but ..
+    # import pypdf  # ...in PyPDF2 v3.0+, the correct import is now pypdf
+
+reader = pypdf.PdfReader(buffer)  # Update usage
+except ModuleNotFoundError:
+    print("Please install 'tabula-py' and 'PyPDF2' using pip")
 
 
 # handle optional excel export+active file links
