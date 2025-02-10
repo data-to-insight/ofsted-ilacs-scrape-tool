@@ -1,7 +1,7 @@
 #
 # Export options
 
-export_summary_filename = 'ofsted_ilacs_overview'
+export_summary_filename = 'ofsted_childrens_services_overview'
 # export_file_type         = 'csv' # Excel / csv currently supported
 export_file_type         = 'excel'
 
@@ -75,28 +75,24 @@ from datetime import datetime, timedelta # timedelta enables server time adjustm
 import json
 import git # possible case for just: from git import Repo
 
-# import nltk
-# nltk.download('punkt')      # tokeniser models/sentence segmentation
-# nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
-# nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
+import nltk
+nltk.download('punkt')      # tokeniser models/sentence segmentation
+nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
+nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
 
-# #sentiment
-# # nlp stuff for sentiment
-# try:
-#     from textblob import TextBlob
-#     from gensim import corpora, models
-#     # sh "/Applications/Python 3.11/Install Certificates.command"
-# except ModuleNotFoundError:
-#     print("Please install 'textblob' and 'gensim' using pip")
+# nlp stuff for sentiment
+try:
+    from textblob import TextBlob
+    from gensim import corpora, models
+    # sh "/Applications/Python 3.11/Install Certificates.command"
+except ModuleNotFoundError:
+    print("Please install 'textblob' and 'gensim' using pip")
 
 
 # pdf search/data extraction
 try:
     import tabula  
-    # import PyPDF2   # depreciated
-    import pypdf  # ...in PyPDF2 v3.0+, the correct import is now pypdf
-    
-
+    import PyPDF2  
 except ModuleNotFoundError:
     print("Please install 'tabula-py' and 'PyPDF2' using pip")
 
@@ -503,8 +499,7 @@ def extract_inspection_data_update(pdf_content):
     # Create a file-like buffer for the PDF content
     with io.BytesIO(pdf_content) as buffer:
         # Read the PDF content for text extraction
-        # reader = PyPDF2.PdfReader(buffer) # depreciated 090225
-        reader = pypdf.PdfReader(buffer)  # Update usage 090225
+        reader = PyPDF2.PdfReader(buffer)
         
         # Extract the first page of inspection report pdf
         # This to ensure when we iterate/search the summary table, chance of invalid table reduced
@@ -515,27 +510,26 @@ def extract_inspection_data_update(pdf_content):
         for page in reader.pages:
             full_text += page.extract_text()
 
+
+        # #################
+        # # dev-in-progress
+
+        # Generate inspection sentiment score
+        # 
+
+        # Call the get_sentiment_and_topics function
+        sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
+
+        # Convert val to a <general> sentiment text/str for (readable) reporting
+        sentiment_summary_str = get_sentiment_category(sentiment_val)
+
+        # #################
+        # # dev-in-progress
         
-        # # ################# #sentiment
-        # # # dev-in-progress
-
-        # # Generate inspection sentiment score
-        # # 
-
-        # #sentiment
-        # # Call the get_sentiment_and_topics function
-        # sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
-
-        # # Convert val to a <general> sentiment text/str for (readable) reporting
-        # sentiment_summary_str = get_sentiment_category(sentiment_val)
-
-        # # #################
-        # # # dev-in-progress
-        
-        # # # Call the updated get_sentiment** function # testing
-        # # sentiment_val2, filtered_themes = get_sentiment_and_sentiment_by_theme(buffer, "leadership", "results", "management") # testing
-        # # plot_filtered_topics(filtered_themes) # testing
-        # # #################
+        # # Call the updated get_sentiment** function # testing
+        # sentiment_val2, filtered_themes = get_sentiment_and_sentiment_by_theme(buffer, "leadership", "results", "management") # testing
+        # plot_filtered_topics(filtered_themes) # testing
+        # #################
 
 
 
@@ -720,11 +714,10 @@ def extract_inspection_data_update(pdf_content):
         'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
         'in_care_grade':            inspection_grades_dict['in_care'],                              
 
-        # #sentiment
-        # # inspection sentiments (in progress)
-        # 'sentiment_score':          round(sentiment_val, 4), 
-        # 'sentiment_summary':        sentiment_summary_str,
-        # 'main_inspection_topics':   key_inspection_themes_lst,
+        # inspection sentiments (in progress)
+        'sentiment_score':          round(sentiment_val, 4), 
+        'sentiment_summary':        sentiment_summary_str,
+        'main_inspection_topics':   key_inspection_themes_lst,
 
         'table_rows_found':len(df)
         }
@@ -838,11 +831,10 @@ def process_provider_links(provider_links):
                         in_care_grade = inspection_data_dict['in_care_grade']
                         care_leavers_grade = inspection_data_dict['care_leavers_grade']
 
-                        # #sentiment
-                        # # NLP extract 
-                        # sentiment_score = inspection_data_dict['sentiment_score']
-                        # sentiment_summary = inspection_data_dict['sentiment_summary']
-                        # main_inspection_topics = inspection_data_dict['main_inspection_topics']
+                        # NLP extract 
+                        sentiment_score = inspection_data_dict['sentiment_score']
+                        sentiment_summary = inspection_data_dict['sentiment_summary']
+                        main_inspection_topics = inspection_data_dict['main_inspection_topics']
 
 
 
@@ -879,10 +871,9 @@ def process_provider_links(provider_links):
                                         'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
                                         'care_leavers_grade': care_leavers_grade,
 
-                                        # #sentiment
-                                        # 'sentiment_score': sentiment_score,
-                                        # 'sentiment_summary': sentiment_summary,
-                                        # 'main_inspection_topics': main_inspection_topics
+                                        'sentiment_score': sentiment_score,
+                                        'sentiment_summary': sentiment_summary,
+                                        'main_inspection_topics': main_inspection_topics
 
                                     })
                         
@@ -1313,46 +1304,46 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
 
 
 
-# #
-# # #sentiment
-# #  In development section re: sentiment and other analysis 
-# #
-# #
+#
+#
+#  In development section re: sentiment and other analysis 
+#
+#
 
-# # Sentiment analysis additional stop/ignore words
-# # bespoke stop words list (minimise uneccessary common non-informative words in the sentiment analysis)
+# Sentiment analysis additional stop/ignore words
+# bespoke stop words list (minimise uneccessary common non-informative words in the sentiment analysis)
 
-# report_sentiment_ignore_words = [
-#     # Words related to the organisation and nature of the report
-#     'ofsted', 'inspection', 'report', 
+report_sentiment_ignore_words = [
+    # Words related to the organisation and nature of the report
+    'ofsted', 'inspection', 'report', 
 
-#     # Words related to the subjects of the report
-#     'child', 'children', 'children\'s', 'young', 'people', 
+    # Words related to the subjects of the report
+    'child', 'children', 'children\'s', 'young', 'people', 
 
-#     # Words related to the services involved
-#     'service', 'services', 'childrens services', 'social', 'care', 
+    # Words related to the services involved
+    'service', 'services', 'childrens services', 'social', 'care', 
 
-#     # Words related to the providers of the services
-#     'staff', 'workers', 'managers',
+    # Words related to the providers of the services
+    'staff', 'workers', 'managers',
 
-#     # Words related to performance and outcomes
-#     'achievement', 'achievements', 'outcome', 'outcomes', 'performance', 
-#     'improvement', 'improvements',
+    # Words related to performance and outcomes
+    'achievement', 'achievements', 'outcome', 'outcomes', 'performance', 
+    'improvement', 'improvements',
 
-#     # Words related to measures and standards
-#     'assessment', 'assessments', 'standard', 'standards', 
-#     'requirement', 'requirements', 'grade', 'grades', 
+    # Words related to measures and standards
+    'assessment', 'assessments', 'standard', 'standards', 
+    'requirement', 'requirements', 'grade', 'grades', 
 
-#     # Words related to the local authority and policy
-#     'local', 'authority', 'policy', 'policies', 
+    # Words related to the local authority and policy
+    'local', 'authority', 'policy', 'policies', 
 
-#     # Words related to specific aspects of care
-#     'help', 'support', 'provision', 'safeguarding', 'families', 
-#     'work', 'leavers',
+    # Words related to specific aspects of care
+    'help', 'support', 'provision', 'safeguarding', 'families', 
+    'work', 'leavers',
 
-#     # Other
-#     'year'
-# ]
+    # Other
+    'year'
+]
 
 
 def get_sentiment_and_topics(pdf_buffer, ignore_words=[]):
@@ -1379,9 +1370,7 @@ def get_sentiment_and_topics(pdf_buffer, ignore_words=[]):
     """
 
     # Read the PDF stuff
-    # reader = PyPDF2.PdfReader(pdf_buffer) # depreciated 090225
-    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
-    
+    reader = PyPDF2.PdfReader(pdf_buffer)
     text = ''
     for page in reader.pages:
         text += page.extract_text()
@@ -1430,9 +1419,7 @@ def get_sentiment_and_sentiment_by_theme(pdf_buffer, theme1, theme2, theme3):
     """
 
     # Read the PDF stuff
-    # reader = PyPDF2.PdfReader(_pdf_buffer) # depreciated 090225
-    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
-
+    reader = PyPDF2.PdfReader(pdf_buffer)
     text = ''
     for page in reader.pages:
         text += page.extract_text()
@@ -1590,21 +1577,20 @@ ilacs_inspection_summary_df['inspector_name'] = (ilacs_inspection_summary_df['in
                                                  .str.lower()
                                                  .str.replace('  ', ' '))  # clean up double spaces
 
-# #sentiment
-# ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
-#                                                          .groupby('inspector_name')['sentiment_score']
-#                                                          .transform('median')
-#                                                          .round(4))
+ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
+                                                         .groupby('inspector_name')['sentiment_score']
+                                                         .transform('median')
+                                                         .round(4))
 
 ilacs_inspection_summary_df['inspectors_inspections_count'] = (ilacs_inspection_summary_df
                                                   .groupby('inspector_name')['inspector_name']
                                                   .transform('count'))
 
-# #sentiment
-# # re-organise column structure now with new col(s)
-# key_col = 'sentiment_score'
-# cols_to_move = ['inspectors_median_sentiment_score','inspectors_inspections_count']
-# ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, key_col, cols_to_move)
+
+# re-organise column structure now with new col(s)
+key_col = 'sentiment_score'
+cols_to_move = ['inspectors_median_sentiment_score','inspectors_inspections_count']
+ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, key_col, cols_to_move)
 
 
 
