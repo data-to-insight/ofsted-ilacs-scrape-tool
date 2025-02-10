@@ -3,13 +3,13 @@ textblob
 gensim
 nltk
 xlsxwriter
-PyPDF2
 requests
 beautifulsoup4
 GitPython
 scipy>=1.11.4
 numpy>=1.26.4
-
+PyPDF2 # run-time issues
+pypdf # replace pypdf2
 
 # 080424 RH
 # Latest scipy version not compatible due to : scipy.linalg functions tri, triu & tril are deprecated and will be removed in SciPy 1.13.

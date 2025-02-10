@@ -75,10 +75,10 @@ from datetime import datetime, timedelta # timedelta enables server time adjustm
 import json
 import git # possible case for just: from git import Repo
 
-import nltk
-nltk.download('punkt')      # tokeniser models/sentence segmentation
-nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
-nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
+# import nltk
+# nltk.download('punkt')      # tokeniser models/sentence segmentation
+# nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
+# nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
 
 # #sentiment
 # # nlp stuff for sentiment
@@ -93,10 +93,10 @@ nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exce
 # pdf search/data extraction
 try:
     import tabula  
-    import PyPDF2   # continue use for now, but ..
-    # import pypdf  # ...in PyPDF2 v3.0+, the correct import is now pypdf
+    # import PyPDF2   # depreciated
+    import pypdf  # ...in PyPDF2 v3.0+, the correct import is now pypdf
+    
 
-reader = pypdf.PdfReader(buffer)  # Update usage
 except ModuleNotFoundError:
     print("Please install 'tabula-py' and 'PyPDF2' using pip")
 
@@ -503,7 +503,8 @@ def extract_inspection_data_update(pdf_content):
     # Create a file-like buffer for the PDF content
     with io.BytesIO(pdf_content) as buffer:
         # Read the PDF content for text extraction
-        reader = PyPDF2.PdfReader(buffer)
+        # reader = PyPDF2.PdfReader(buffer) # depreciated 090225
+        reader = pypdf.PdfReader(buffer)  # Update usage 090225
         
         # Extract the first page of inspection report pdf
         # This to ensure when we iterate/search the summary table, chance of invalid table reduced
@@ -1378,7 +1379,9 @@ def get_sentiment_and_topics(pdf_buffer, ignore_words=[]):
     """
 
     # Read the PDF stuff
-    reader = PyPDF2.PdfReader(pdf_buffer)
+    # reader = PyPDF2.PdfReader(pdf_buffer) # depreciated 090225
+    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
+    
     text = ''
     for page in reader.pages:
         text += page.extract_text()
@@ -1427,7 +1430,9 @@ def get_sentiment_and_sentiment_by_theme(pdf_buffer, theme1, theme2, theme3):
     """
 
     # Read the PDF stuff
-    reader = PyPDF2.PdfReader(pdf_buffer)
+    # reader = PyPDF2.PdfReader(_pdf_buffer) # depreciated 090225
+    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
+
     text = ''
     for page in reader.pages:
         text += page.extract_text()
