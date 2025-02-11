@@ -1,7 +1,7 @@
 #
 # Export options
 
-export_summary_filename = 'ofsted_ilacs_overview'
+export_summary_filename = 'ofsted_childrens_services_overview'
 # export_file_type         = 'csv' # Excel / csv currently supported
 export_file_type         = 'excel'
 
@@ -34,17 +34,21 @@ repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
 short_inspection_threshold    = 7 # ILACS inspection duration (in days)
 standard_inspection_threshold = 14
 
-max_page_results = 200 # Set max number of search results to show on page(MUST be > total number of LA's!) 
+
+
+# Define max results per page (Now limited to 100)
+max_page_results = 100  # new ofsted search limit at w/c 100225
 url_stem = 'https://reports.ofsted.gov.uk/'
 
-
+# Base search URL (excluding pagination controls)
 search_url = 'search?q=&location=&lat=&lon=&radius=&level_1_types=3&level_2_types%5B%5D=12'
-max_page_results_url = '&rows=' + str(max_page_results) # Coerce results page to display ALL providers on single results page without next/pagination
 
-# resultant complete url to process
-url = url_stem + search_url + max_page_results_url 
+# pagination params placehold
+pagination_param = '&start={start}&rows=' + str(max_page_results)
 
-
+data = []
+start = 0
+max_results = 160  # expecting 153 @110225
 
 
 
@@ -93,10 +97,7 @@ import git # possible case for just: from git import Repo
 # pdf search/data extraction
 try:
     import tabula  
-    # import PyPDF2   # depreciated
-    import pypdf  # ...in PyPDF2 v3.0+, the correct import is now pypdf
-    
-
+    import PyPDF2  
 except ModuleNotFoundError:
     print("Please install 'tabula-py' and 'PyPDF2' using pip")
 
@@ -503,8 +504,7 @@ def extract_inspection_data_update(pdf_content):
     # Create a file-like buffer for the PDF content
     with io.BytesIO(pdf_content) as buffer:
         # Read the PDF content for text extraction
-        # reader = PyPDF2.PdfReader(buffer) # depreciated 090225
-        reader = pypdf.PdfReader(buffer)  # Update usage 090225
+        reader = PyPDF2.PdfReader(buffer)
         
         # Extract the first page of inspection report pdf
         # This to ensure when we iterate/search the summary table, chance of invalid table reduced
@@ -515,27 +515,26 @@ def extract_inspection_data_update(pdf_content):
         for page in reader.pages:
             full_text += page.extract_text()
 
-        
-        # # ################# #sentiment
+
+        # # #################
         # # # dev-in-progress
 
         # # Generate inspection sentiment score
         # # 
 
-        # #sentiment
         # # Call the get_sentiment_and_topics function
         # sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
 
         # # Convert val to a <general> sentiment text/str for (readable) reporting
         # sentiment_summary_str = get_sentiment_category(sentiment_val)
 
-        # # #################
-        # # # dev-in-progress
+        # #################
+        # # dev-in-progress
         
-        # # # Call the updated get_sentiment** function # testing
-        # # sentiment_val2, filtered_themes = get_sentiment_and_sentiment_by_theme(buffer, "leadership", "results", "management") # testing
-        # # plot_filtered_topics(filtered_themes) # testing
-        # # #################
+        # # Call the updated get_sentiment** function # testing
+        # sentiment_val2, filtered_themes = get_sentiment_and_sentiment_by_theme(buffer, "leadership", "results", "management") # testing
+        # plot_filtered_topics(filtered_themes) # testing
+        # #################
 
 
 
@@ -720,7 +719,6 @@ def extract_inspection_data_update(pdf_content):
         'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
         'in_care_grade':            inspection_grades_dict['in_care'],                              
 
-        # #sentiment
         # # inspection sentiments (in progress)
         # 'sentiment_score':          round(sentiment_val, 4), 
         # 'sentiment_summary':        sentiment_summary_str,
@@ -757,8 +755,6 @@ def process_provider_links(provider_links):
         urn = link['href'].rsplit('/', 1)[-1]
         la_name_str = clean_provider_name(link.text.strip())
 
-
-        clean_provider_dir = os.path.join(root_export_folder, inspections_subfolder, urn + '_' + la_name_str)
         provider_dir = os.path.join('.', root_export_folder, inspections_subfolder, urn + '_' + la_name_str)
 
         # Create the provider directory if it doesn't exist
@@ -768,6 +764,7 @@ def process_provider_links(provider_links):
         # Get the child page content
         child_url = 'https://reports.ofsted.gov.uk' + link['href']
         child_soup = get_soup(child_url)
+        
 
         # Find all publication links in the provider's child page
         pdf_links = child_soup.find_all('a', {'class': 'publication-link'})
@@ -838,8 +835,7 @@ def process_provider_links(provider_links):
                         in_care_grade = inspection_data_dict['in_care_grade']
                         care_leavers_grade = inspection_data_dict['care_leavers_grade']
 
-                        # #sentiment
-                        # # NLP extract 
+                        # # NLP extract #sentiment
                         # sentiment_score = inspection_data_dict['sentiment_score']
                         # sentiment_summary = inspection_data_dict['sentiment_summary']
                         # main_inspection_topics = inspection_data_dict['main_inspection_topics']
@@ -856,7 +852,7 @@ def process_provider_links(provider_links):
                         
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
-                        # TESTING
+                        # # TESTING  #DEBUG #sentiment
                         # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
                         print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
@@ -879,7 +875,6 @@ def process_provider_links(provider_links):
                                         'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
                                         'care_leavers_grade': care_leavers_grade,
 
-                                        # #sentiment
                                         # 'sentiment_score': sentiment_score,
                                         # 'sentiment_summary': sentiment_summary,
                                         # 'main_inspection_topics': main_inspection_topics
@@ -893,25 +888,6 @@ def process_provider_links(provider_links):
 
                     
                     found_inspection_link = True # Flag to ensure data reporting on only the most recent inspection
-
-    # print(data) # TEST 180324 RH
-    # import sys
-    # class UrnNotFoundException(Exception):
-    #     pass
-
-    # def check_urn_and_stop(data, target_urn):
-    #     for item in data:
-    #         if item['urn'] == target_urn:
-    #             print(f"URN {target_urn} found. Stopping process.")
-    #             raise UrnNotFoundException(f"URN {target_urn} found.")
-    #     print("Target URN not found. Continuing process.")
-
-    # try:
-    #     check_urn_and_stop(data, '80490')
-    # except UrnNotFoundException as e:
-    #     print(e)
-    #     sys.exit(1)  # Exit the script/program
-
     return data
 
 
@@ -1312,14 +1288,11 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
 
 
 
-
 # #
-# # #sentiment
 # #  In development section re: sentiment and other analysis 
 # #
-# #
 
-# # Sentiment analysis additional stop/ignore words
+# # #Sentiment analysis additional stop/ignore words
 # # bespoke stop words list (minimise uneccessary common non-informative words in the sentiment analysis)
 
 # report_sentiment_ignore_words = [
@@ -1379,9 +1352,7 @@ def get_sentiment_and_topics(pdf_buffer, ignore_words=[]):
     """
 
     # Read the PDF stuff
-    # reader = PyPDF2.PdfReader(pdf_buffer) # depreciated 090225
-    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
-    
+    reader = PyPDF2.PdfReader(pdf_buffer)
     text = ''
     for page in reader.pages:
         text += page.extract_text()
@@ -1430,9 +1401,7 @@ def get_sentiment_and_sentiment_by_theme(pdf_buffer, theme1, theme2, theme3):
     """
 
     # Read the PDF stuff
-    # reader = PyPDF2.PdfReader(_pdf_buffer) # depreciated 090225
-    reader = pypdf.PdfReader(pdf_buffer)  # Update usage 090225
-
+    reader = PyPDF2.PdfReader(pdf_buffer)
     text = ''
     for page in reader.pages:
         text += page.extract_text()
@@ -1552,53 +1521,60 @@ def plot_filtered_topics(filtered_topics):
 #
 
 
-
-
-
-
-#
-# Scrape Ofsted inspection report data
-#
 data = []
-while True:
-    # Fetch and parse the HTML content of the current URL
+while start < max_results:
+    # Construct URL for current chunk
+    url = url_stem + search_url + pagination_param.format(start=start)
+
+    print(f"Fetching: {url}")  # Debug output
+
+    # Fetch and parse search page
     soup = get_soup(url)
-    
-    # Find all 'provider' links on the page
+
+    if soup is None:
+        print("⚠️ ERROR: No content retrieved, stopping.")
+        break
+
+    # Find provider links
     provider_links = soup.find_all('a', href=lambda href: href and '/provider/' in href)
 
-    # Process the provider links and extend the data list with the results
+    print(f"🔍 DEBUG: Found {len(provider_links)} provider links on page {start}-{start + max_page_results}")
+
+    if not provider_links:
+        break  # no more results found
+
+    # provider links
     data.extend(process_provider_links(provider_links))
 
-    
-    # Since all results are on a single page, no need to handle pagination. 
-    # Processing complete.   
-    break
-
-
+    # continue on next batch (if there is)
+    start += max_page_results
 
 # Convert the 'data' list to a DataFrame
 ilacs_inspection_summary_df = pd.DataFrame(data)
+
+# Debug final result count
+print(f"\n📊 DEBUG: Total providers collected: {ilacs_inspection_summary_df.shape[0]}")
 
 
 #
 # Add in some additional simplistic calc metric(s) cols
 
-# Median sentiment score for each inspector
+
 ilacs_inspection_summary_df['inspector_name'] = (ilacs_inspection_summary_df['inspector_name']
                                                  .str.strip()
                                                  .str.lower()
                                                  .str.replace('  ', ' '))  # clean up double spaces
 
+ilacs_inspection_summary_df['inspectors_inspections_count'] = (ilacs_inspection_summary_df
+                                                  .groupby('inspector_name')['inspector_name']
+                                                  .transform('count'))
+
 # #sentiment
+# Median sentiment score for each inspector
 # ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
 #                                                          .groupby('inspector_name')['sentiment_score']
 #                                                          .transform('median')
 #                                                          .round(4))
-
-ilacs_inspection_summary_df['inspectors_inspections_count'] = (ilacs_inspection_summary_df
-                                                  .groupby('inspector_name')['inspector_name']
-                                                  .transform('count'))
 
 # #sentiment
 # # re-organise column structure now with new col(s)
