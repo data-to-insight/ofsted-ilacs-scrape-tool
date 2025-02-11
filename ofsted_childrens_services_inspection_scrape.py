@@ -34,17 +34,21 @@ repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
 short_inspection_threshold    = 7 # ILACS inspection duration (in days)
 standard_inspection_threshold = 14
 
-max_page_results = 200 # Set max number of search results to show on page(MUST be > total number of LA's!) 
+
+
+# Define max results per page (Now limited to 100)
+max_page_results = 100  # new ofsted search limit at w/c 100225
 url_stem = 'https://reports.ofsted.gov.uk/'
 
-
+# Base search URL (excluding pagination controls)
 search_url = 'search?q=&location=&lat=&lon=&radius=&level_1_types=3&level_2_types%5B%5D=12'
-max_page_results_url = '&rows=' + str(max_page_results) # Coerce results page to display ALL providers on single results page without next/pagination
 
-# resultant complete url to process
-url = url_stem + search_url + max_page_results_url 
+# pagination params placehold
+pagination_param = '&start={start}&rows=' + str(max_page_results)
 
-
+data = []
+start = 0
+max_results = 160  # expecting 153 @110225
 
 
 
@@ -75,10 +79,10 @@ from datetime import datetime, timedelta # timedelta enables server time adjustm
 import json
 import git # possible case for just: from git import Repo
 
-import nltk
-nltk.download('punkt')      # tokeniser models/sentence segmentation
-nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
-nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
+# import nltk
+# nltk.download('punkt')      # tokeniser models/sentence segmentation
+# nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
+# nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
 
 # #sentiment
 # # nlp stuff for sentiment
@@ -751,8 +755,6 @@ def process_provider_links(provider_links):
         urn = link['href'].rsplit('/', 1)[-1]
         la_name_str = clean_provider_name(link.text.strip())
 
-
-        clean_provider_dir = os.path.join(root_export_folder, inspections_subfolder, urn + '_' + la_name_str)
         provider_dir = os.path.join('.', root_export_folder, inspections_subfolder, urn + '_' + la_name_str)
 
         # Create the provider directory if it doesn't exist
@@ -763,10 +765,6 @@ def process_provider_links(provider_links):
         child_url = 'https://reports.ofsted.gov.uk' + link['href']
         child_soup = get_soup(child_url)
         
-        #sentiment
-        #debug
-        print(f"process_provider_links: {child_url}")
-              
 
         # Find all publication links in the provider's child page
         pdf_links = child_soup.find_all('a', {'class': 'publication-link'})
@@ -854,8 +852,8 @@ def process_provider_links(provider_links):
                         
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
-                        # TESTING  #DEBUG #sentiment
-                        print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
+                        # # TESTING  #DEBUG #sentiment
+                        # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
                         print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
 
@@ -890,25 +888,6 @@ def process_provider_links(provider_links):
 
                     
                     found_inspection_link = True # Flag to ensure data reporting on only the most recent inspection
-
-    # print(data) # TEST 180324 RH
-    # import sys
-    # class UrnNotFoundException(Exception):
-    #     pass
-
-    # def check_urn_and_stop(data, target_urn):
-    #     for item in data:
-    #         if item['urn'] == target_urn:
-    #             print(f"URN {target_urn} found. Stopping process.")
-    #             raise UrnNotFoundException(f"URN {target_urn} found.")
-    #     print("Target URN not found. Continuing process.")
-
-    # try:
-    #     check_urn_and_stop(data, '80490')
-    # except UrnNotFoundException as e:
-    #     print(e)
-    #     sys.exit(1)  # Exit the script/program
-
     return data
 
 
@@ -1542,52 +1521,60 @@ def plot_filtered_topics(filtered_topics):
 #
 
 
-
-
-
-
-#
-# Scrape Ofsted inspection report data
-#
 data = []
-while True:
-    # Fetch and parse the HTML content of the current URL
+while start < max_results:
+    # Construct URL for current chunk
+    url = url_stem + search_url + pagination_param.format(start=start)
+
+    print(f"Fetching: {url}")  # Debug output
+
+    # Fetch and parse search page
     soup = get_soup(url)
-    
-    # Find all 'provider' links on the page
+
+    if soup is None:
+        print("⚠️ ERROR: No content retrieved, stopping.")
+        break
+
+    # Find provider links
     provider_links = soup.find_all('a', href=lambda href: href and '/provider/' in href)
 
-    # Process the provider links and extend the data list with the results
+    print(f"🔍 DEBUG: Found {len(provider_links)} provider links on page {start}-{start + max_page_results}")
+
+    if not provider_links:
+        break  # no more results found
+
+    # provider links
     data.extend(process_provider_links(provider_links))
 
-    
-    # Since all results are on a single page, no need to handle pagination. 
-    # Processing complete.   
-    break
-
-
+    # continue on next batch (if there is)
+    start += max_page_results
 
 # Convert the 'data' list to a DataFrame
 ilacs_inspection_summary_df = pd.DataFrame(data)
+
+# Debug final result count
+print(f"\n📊 DEBUG: Total providers collected: {ilacs_inspection_summary_df.shape[0]}")
 
 
 #
 # Add in some additional simplistic calc metric(s) cols
 
-# Median sentiment score for each inspector
+
 ilacs_inspection_summary_df['inspector_name'] = (ilacs_inspection_summary_df['inspector_name']
                                                  .str.strip()
                                                  .str.lower()
                                                  .str.replace('  ', ' '))  # clean up double spaces
-# #sentiment
-# ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
-#                                                          .groupby('inspector_name')['sentiment_score']
-#                                                          .transform('median')
-#                                                          .round(4))
 
 ilacs_inspection_summary_df['inspectors_inspections_count'] = (ilacs_inspection_summary_df
                                                   .groupby('inspector_name')['inspector_name']
                                                   .transform('count'))
+
+# #sentiment
+# Median sentiment score for each inspector
+# ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
+#                                                          .groupby('inspector_name')['sentiment_score']
+#                                                          .transform('median')
+#                                                          .round(4))
 
 # #sentiment
 # # re-organise column structure now with new col(s)
