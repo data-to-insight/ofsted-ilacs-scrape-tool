@@ -80,13 +80,14 @@ nltk.download('punkt')      # tokeniser models/sentence segmentation
 nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
 nltk.download('punkt_tab')  # added 120824 RH - as work-around fix textblob.exceptions.MissingCorpusError line 1384, in get_sentiment_and_topics
 
-# nlp stuff for sentiment
-try:
-    from textblob import TextBlob
-    from gensim import corpora, models
-    # sh "/Applications/Python 3.11/Install Certificates.command"
-except ModuleNotFoundError:
-    print("Please install 'textblob' and 'gensim' using pip")
+# #sentiment
+# # nlp stuff for sentiment
+# try:
+#     from textblob import TextBlob
+#     from gensim import corpora, models
+#     # sh "/Applications/Python 3.11/Install Certificates.command"
+# except ModuleNotFoundError:
+#     print("Please install 'textblob' and 'gensim' using pip")
 
 
 # pdf search/data extraction
@@ -511,17 +512,17 @@ def extract_inspection_data_update(pdf_content):
             full_text += page.extract_text()
 
 
-        # #################
-        # # dev-in-progress
+        # # #################
+        # # # dev-in-progress
 
-        # Generate inspection sentiment score
-        # 
+        # # Generate inspection sentiment score
+        # # 
 
-        # Call the get_sentiment_and_topics function
-        sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
+        # # Call the get_sentiment_and_topics function
+        # sentiment_val, key_inspection_themes_lst = get_sentiment_and_topics(buffer, report_sentiment_ignore_words)
 
-        # Convert val to a <general> sentiment text/str for (readable) reporting
-        sentiment_summary_str = get_sentiment_category(sentiment_val)
+        # # Convert val to a <general> sentiment text/str for (readable) reporting
+        # sentiment_summary_str = get_sentiment_category(sentiment_val)
 
         # #################
         # # dev-in-progress
@@ -714,10 +715,10 @@ def extract_inspection_data_update(pdf_content):
         'care_leavers_grade':       inspection_grades_dict['care_leavers'], 
         'in_care_grade':            inspection_grades_dict['in_care'],                              
 
-        # inspection sentiments (in progress)
-        'sentiment_score':          round(sentiment_val, 4), 
-        'sentiment_summary':        sentiment_summary_str,
-        'main_inspection_topics':   key_inspection_themes_lst,
+        # # inspection sentiments (in progress)
+        # 'sentiment_score':          round(sentiment_val, 4), 
+        # 'sentiment_summary':        sentiment_summary_str,
+        # 'main_inspection_topics':   key_inspection_themes_lst,
 
         'table_rows_found':len(df)
         }
@@ -761,6 +762,11 @@ def process_provider_links(provider_links):
         # Get the child page content
         child_url = 'https://reports.ofsted.gov.uk' + link['href']
         child_soup = get_soup(child_url)
+        
+        #sentiment
+        #debug
+        print(f"process_provider_links: {child_url}")
+              
 
         # Find all publication links in the provider's child page
         pdf_links = child_soup.find_all('a', {'class': 'publication-link'})
@@ -831,10 +837,10 @@ def process_provider_links(provider_links):
                         in_care_grade = inspection_data_dict['in_care_grade']
                         care_leavers_grade = inspection_data_dict['care_leavers_grade']
 
-                        # NLP extract 
-                        sentiment_score = inspection_data_dict['sentiment_score']
-                        sentiment_summary = inspection_data_dict['sentiment_summary']
-                        main_inspection_topics = inspection_data_dict['main_inspection_topics']
+                        # # NLP extract #sentiment
+                        # sentiment_score = inspection_data_dict['sentiment_score']
+                        # sentiment_summary = inspection_data_dict['sentiment_summary']
+                        # main_inspection_topics = inspection_data_dict['main_inspection_topics']
 
 
 
@@ -848,8 +854,8 @@ def process_provider_links(provider_links):
                         
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
-                        # TESTING
-                        # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
+                        # TESTING  #DEBUG #sentiment
+                        print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
                         print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
 
@@ -871,9 +877,9 @@ def process_provider_links(provider_links):
                                         'in_care_grade': in_care_grade, # This now becomes the care_and_care_leavers_grade if a pre Jan 2023 inspection
                                         'care_leavers_grade': care_leavers_grade,
 
-                                        'sentiment_score': sentiment_score,
-                                        'sentiment_summary': sentiment_summary,
-                                        'main_inspection_topics': main_inspection_topics
+                                        # 'sentiment_score': sentiment_score,
+                                        # 'sentiment_summary': sentiment_summary,
+                                        # 'main_inspection_topics': main_inspection_topics
 
                                     })
                         
@@ -1303,47 +1309,44 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
 
 
 
+# #
+# #  In development section re: sentiment and other analysis 
+# #
 
-#
-#
-#  In development section re: sentiment and other analysis 
-#
-#
+# # #Sentiment analysis additional stop/ignore words
+# # bespoke stop words list (minimise uneccessary common non-informative words in the sentiment analysis)
 
-# Sentiment analysis additional stop/ignore words
-# bespoke stop words list (minimise uneccessary common non-informative words in the sentiment analysis)
+# report_sentiment_ignore_words = [
+#     # Words related to the organisation and nature of the report
+#     'ofsted', 'inspection', 'report', 
 
-report_sentiment_ignore_words = [
-    # Words related to the organisation and nature of the report
-    'ofsted', 'inspection', 'report', 
+#     # Words related to the subjects of the report
+#     'child', 'children', 'children\'s', 'young', 'people', 
 
-    # Words related to the subjects of the report
-    'child', 'children', 'children\'s', 'young', 'people', 
+#     # Words related to the services involved
+#     'service', 'services', 'childrens services', 'social', 'care', 
 
-    # Words related to the services involved
-    'service', 'services', 'childrens services', 'social', 'care', 
+#     # Words related to the providers of the services
+#     'staff', 'workers', 'managers',
 
-    # Words related to the providers of the services
-    'staff', 'workers', 'managers',
+#     # Words related to performance and outcomes
+#     'achievement', 'achievements', 'outcome', 'outcomes', 'performance', 
+#     'improvement', 'improvements',
 
-    # Words related to performance and outcomes
-    'achievement', 'achievements', 'outcome', 'outcomes', 'performance', 
-    'improvement', 'improvements',
+#     # Words related to measures and standards
+#     'assessment', 'assessments', 'standard', 'standards', 
+#     'requirement', 'requirements', 'grade', 'grades', 
 
-    # Words related to measures and standards
-    'assessment', 'assessments', 'standard', 'standards', 
-    'requirement', 'requirements', 'grade', 'grades', 
+#     # Words related to the local authority and policy
+#     'local', 'authority', 'policy', 'policies', 
 
-    # Words related to the local authority and policy
-    'local', 'authority', 'policy', 'policies', 
+#     # Words related to specific aspects of care
+#     'help', 'support', 'provision', 'safeguarding', 'families', 
+#     'work', 'leavers',
 
-    # Words related to specific aspects of care
-    'help', 'support', 'provision', 'safeguarding', 'families', 
-    'work', 'leavers',
-
-    # Other
-    'year'
-]
+#     # Other
+#     'year'
+# ]
 
 
 def get_sentiment_and_topics(pdf_buffer, ignore_words=[]):
@@ -1576,21 +1579,21 @@ ilacs_inspection_summary_df['inspector_name'] = (ilacs_inspection_summary_df['in
                                                  .str.strip()
                                                  .str.lower()
                                                  .str.replace('  ', ' '))  # clean up double spaces
-
-ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
-                                                         .groupby('inspector_name')['sentiment_score']
-                                                         .transform('median')
-                                                         .round(4))
+# #sentiment
+# ilacs_inspection_summary_df['inspectors_median_sentiment_score'] = (ilacs_inspection_summary_df
+#                                                          .groupby('inspector_name')['sentiment_score']
+#                                                          .transform('median')
+#                                                          .round(4))
 
 ilacs_inspection_summary_df['inspectors_inspections_count'] = (ilacs_inspection_summary_df
                                                   .groupby('inspector_name')['inspector_name']
                                                   .transform('count'))
 
-
-# re-organise column structure now with new col(s)
-key_col = 'sentiment_score'
-cols_to_move = ['inspectors_median_sentiment_score','inspectors_inspections_count']
-ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, key_col, cols_to_move)
+# #sentiment
+# # re-organise column structure now with new col(s)
+# key_col = 'sentiment_score'
+# cols_to_move = ['inspectors_median_sentiment_score','inspectors_inspections_count']
+# ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, key_col, cols_to_move)
 
 
 
