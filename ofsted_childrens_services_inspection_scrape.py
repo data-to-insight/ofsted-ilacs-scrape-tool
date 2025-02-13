@@ -1618,6 +1618,23 @@ ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, ke
 ## End enrichment 1 ##
 
 
+#
+# Add in the overal grades for each of the LA'as stat neighbours 
+#
+# lookup dict for la_code -> overall_effectiveness_grade
+grade_lookup = dict(zip(ilacs_inspection_summary_df["la_code"], ilacs_inspection_summary_df["overall_effectiveness_grade"]))
+
+# map stat_neighbours to include o_effectiveness grades
+def map_neighbour_grades(stat_neighbours):
+    la_codes = stat_neighbours.split(",")  # csv to list
+    return [(int(la), grade_lookup.get(int(la), "Unknown")) for la in la_codes]  # tuples of (la_code, o_grade)
+
+# move the new col next to existing 
+ilacs_inspection_summary_df["stat_neighbour_judgement"] = ilacs_inspection_summary_df["stat_neighbours"].apply(map_neighbour_grades)
+ilacs_inspection_summary_df = reposition_columns(ilacs_inspection_summary_df, "stat_neighbours", ["stat_neighbour_judgement"])
+
+
+
 
 # # Enrichment: Geospatial boundary data
 # # Import and append geospatial boundaries data for each LA (geojson)
