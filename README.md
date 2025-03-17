@@ -5,10 +5,10 @@ Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 ### The inspection reports output summary is refreshed on a weekly basis, usually on the first working day.   
 
 ## Initial problem brief
-D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published mcuh more regularly, can we access that data/results directly ourselves and re-create a similar summary to the ADCS version. Perhaps if we can, is there any other data elements that we can bring in to increase the potential use-cases for this data. 
+D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published much more regularly, the brief became can we access the data/results directly ourselves and re-create a similar but more timely summary. If we can, are there any other data elements that we can bring in to increase the potential use-cases for LA colleagues. 
 
 ## Solution overview
-This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of 'please check the vitals' if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of code readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data; this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
+This project is based on the initial proof-of-concept. As such it's supplied very much with the disclaimer of 'please check the vitals' if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of code readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data; this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
 
 The results structure and returned data is based almost entirely on the originating ILACS Summary produced/refreshed periodically by the ADCS; the use of which has previously underpinned several D2I projects. We're aware of several similar collections of longer-term work on and surrounding the Ofsted results theme, and would be happy to hear from those who perhaps also have bespoke ideas for changes here that would assist their own work. 
 
@@ -28,23 +28,28 @@ During the scrape process, because we scan all the related CS inspection pdf rep
 
 ## Known Bugs
 Some LA's inspection reports have PDF encoding or inconsistent data in the published reports that is causing extraction issues & null data. 
-We're working to address these, these are:
-- southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade]
-- nottingham, [inspection_framework, inspection_date]
-- redcar and cleveland, [inspection_framework, inspection_date]
-- knowsley, [inspector_name]
-- stoke-on-trent, [inspector_name]
+We're working to address these, these are:  
+- southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade]  
+- nottingham, [inspection_framework, inspection_date]  
+- redcar and cleveland, [inspection_framework, inspection_date]  
+- knowsley, [inspector_name]  
+- stoke-on-trent, [inspector_name]  
 
 
 ## Imports(s)
 There are currently two flat file(.csv) imports used. (/import_data/..)
-### LA Lookup (/import_data/la_lookup/)
+
+### LA Lookup (/import_data/la_lookup/) 
+
 Allows us to add further LA related data including such as the historic LA codes still in use for some areas, but also enablers for further work, for example ONS region identifiers, and which CMS system LA's are using.
-### Geospatial (/import_data/geospatial/)
+
+### Geospatial (/import_data/geospatial/) 
+
 This part of some ongoing work to access data we can use to enrich the Ofsted data with location based information, thus allowing us to visualise results on a map/choropleth. Some of the work towards this is completed, however because LA's geographical deliniations don't always map to ONS data, we're in the process of finding some work-arounds. The code and the reduced* GeoJSON data are there if anyone would like to fork the project and suggestion solutions. *GeoJSON data has been pre-processed to reduce the usually large file size and enable it within this repo/processing. 
 
 
-## Future work
+## Future work 
+
 - We have started some early placeholder work on sentiment analysis of the inspection reports. At the moment, this is only shown in the Excel download summary (not on the web based summary to improve readability). The positive/negative sentiment within the inspection reports needs some further work developing both the thresholds and more detailed work on better understanding the report text. 
 
 - Some of the in-progress efforts are included as a point of discuss or stepping stone for others to develop within the download .xlsx file. For example a set of columns detailing simplistic inspection sentiment analysis based on the language used in the most recent report (ref cols: sentiment_score, inspectors_median_sentiment_score, sentiment_summary, main_inspection_topics). *Note that the inclusion of these columns does not dictate that the scores are accurate, these additions are a starting point for discussion|suggestions and development!!*
@@ -62,16 +67,20 @@ This part of some ongoing work to access data we can use to enrich the Ofsted da
 
 
 ## Script admin notes
+
 Simplified notes towards repo/script admin processes and enabling/instructions for non-admin running. 
+
 ### Script run intructions (User)
-If looking to obtain a full instant refresh of the ilacs output, the ofsted_childrens_services_inspection_scrape.PY should be run. These instructions for running in the cloud/Github. 
-- Create a new Codespace (on main)
+
+If looking to obtain a full instant refresh of the ilacs output, the ofsted_childrens_services_inspection_scrape.PY should be run. These instructions for running in the cloud/Github.  
+- Create a new Codespace (on main)  
 - Type run the following bash script at Terminal prompt to set up './setup.sh'
 - Run the script (can right click script file and select 'run in python....'
 - Download the now refreshed ofsted_childrens_services_inspection_scrape.XLSX (Right click, download)
 - Close codespace (Github will auto-remove unused spaces later)
   
 ### Run notes (Admin)
+
 If you experience a permissions error running the setup bash file. 
 
 /workspaces/ofsted-ilacs-scrape-tool (main) $ ./setup.sh
