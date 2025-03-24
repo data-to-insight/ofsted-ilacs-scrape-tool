@@ -1552,6 +1552,8 @@ while start < max_results:
     # continue on next batch (if there is)
     start += max_page_results
 
+
+
 # Convert the 'data' list to a DataFrame
 ilacs_inspection_summary_df = pd.DataFrame(data)
 

@@ -51,13 +51,13 @@ jobs:
 
       # Ensure Script is Executable
       - name: Ensure Script is Executable
-        run: chmod +x ofsted_childrens_services_inspection_scrape.py
+        run: chmod +x ofsted_ilacs_scrape.py
 
       # Run the scrape
       - name: Run Python script
         run: |
           echo "Running scrape script"
-          python ofsted_childrens_services_inspection_scrape.py
+          python ofsted_ilacs_scrape.py
 
       # Configure Git and Commit changes
       - name: Commit and Push changes
