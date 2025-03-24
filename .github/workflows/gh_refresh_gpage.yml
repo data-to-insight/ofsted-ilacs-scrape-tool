@@ -1,67 +1,57 @@
 # Workflow runs the scrape process to refresh/update daily
 
-# Run events
 on:
-  # On push
   push:
     branches: ["main"]
-  On pull
   pull_request:
     branches: ["main"]
-  Add manual trigger from Actions tab
-  workflow_dispatch:
-  # Schedule run at 9 AM UTC every day
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 5 * * *'
 
-# Sets permissions of the GITHUB_TOKEN for deployment to GitHub Pages
 permissions:
-  contents: write # changed from read to allow repo updates
+  contents: write  # Allow repo updates
   pages: write
   id-token: write
 
-# Define workflow job
 jobs:
   build:
-    # Runs on the latest version of Ubuntu
     runs-on: ubuntu-latest
     steps:
-      # Checks out a copy of repo
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up Python
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+
+          # we need the fortran(scikit) and java(pdf extract) coerced for scheduled running
+          sudo apt-get install -y gfortran default-jre 
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
           
-      # Show Current Directory and List Files
       - name: Show Current Directory
         run: |
           echo "Current directory: $(pwd)"
           echo "Listing files:"
           ls -la
 
-      # Install dependencies
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Ensure Script is Executable
-      - name: Ensure Script is Executable
+      - name: Ensure script is executable
         run: chmod +x ofsted_ilacs_scrape.py
 
-      # Run the scrape
       - name: Run Python script
         run: |
           echo "Running scrape script"
           python ofsted_ilacs_scrape.py
 
-      # Configure Git and Commit changes
-      - name: Commit and Push changes
-      # if: github.event_name == 'schedule' # Use on testing, to avoid inf loop for on push workflow event trigger
+      - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -69,18 +59,12 @@ jobs:
           git commit -m "Update index.html via workflow" || echo "No changes to commit"
           git push
 
-        
-  # Deploy job
   deploy:
-    # Run on the latest version of Ubuntu
     runs-on: ubuntu-latest
-    # Build job must complete successfully
     needs: build
     steps:
-      # Deploy to GitHub Pages
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Directory deployed to GitHub Pages
           publish_dir: ./

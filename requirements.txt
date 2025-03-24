@@ -1,6 +1,6 @@
 tabula-py
 textblob
-gensim
+# gensim
 nltk
 xlsxwriter
 PyPDF2
@@ -11,5 +11,7 @@ GitPython
 # 080424 RH
 # Latest scipy version not compatible due to : scipy.linalg functions tri, triu & tril are deprecated and will be removed in SciPy 1.13.
 # Causes: ImportError: cannot import name 'triu' from 'scipy.linalg'. Hence fix to prev working version until can revisit/switch libraries in use to numpy ones. 
-scipy
+# scipy
+# scipy==1.10.1 
+scipy==1.15.2
 

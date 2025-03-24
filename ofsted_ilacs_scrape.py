@@ -652,7 +652,14 @@ def extract_inspection_data_update(pdf_content):
 
     # Can be multiple tables on page 1(dodgy pdf formatting), ensure we only look at the 1st. 
     # 
-    df = pd.DataFrame(tables[0])
+    try:
+        df = pd.DataFrame(tables[0])
+    except IndexError:
+        print(tables)
+        print(first_page_text)
+        print("Error: No tables extracted from PDF. Check input data and extraction method.")
+        # exit with a non-zero code or handle err
+
 
     # Some initial clean-up / consistency checks
     df.columns = [col.lower().strip() for col in df.columns] # coerce consistent (headers)
