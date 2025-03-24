@@ -1,393 +1,81 @@
-![act-logo](https://github.com/nektos/act/wiki/img/logo-150.png)
+# Ofsted-ILACS-Scrape-Tool
+On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages
+Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
+-
+### The inspection reports output summary is refreshed on a weekly basis, usually on the first working day.   
 
-# Overview [![push](https://github.com/nektos/act/workflows/push/badge.svg?branch=master&event=push)](https://github.com/nektos/act/actions) [![Join the chat at https://gitter.im/nektos/act](https://badges.gitter.im/nektos/act.svg)](https://gitter.im/nektos/act?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Go Report Card](https://goreportcard.com/badge/github.com/nektos/act)](https://goreportcard.com/report/github.com/nektos/act) [![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)
+## Initial problem brief
+D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published mcuh more regularly, can we access that data/results directly ourselves and re-create a similar summary to the ADCS version. Perhaps if we can, is there any other data elements that we can bring in to increase the potential use-cases for this data. 
 
-> "Think globally, `act` locally"
+## Solution overview
+This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of 'please check the vitals' if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of code readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data; this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
 
-Run your [GitHub Actions](https://developer.github.com/actions/) locally! Why would you want to do this? Two reasons:
+The results structure and returned data is based almost entirely on the originating ILACS Summary produced/refreshed periodically by the ADCS; the use of which has previously underpinned several D2I projects. We're aware of several similar collections of longer-term work on and surrounding the Ofsted results theme, and would be happy to hear from those who perhaps also have bespoke ideas for changes here that would assist their own work. 
 
-- **Fast Feedback** - Rather than having to commit/push every time you want to test out the changes you are making to your `.github/workflows/` files (or for any changes to embedded GitHub actions), you can use `act` to run the actions locally. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners#filesystems-on-github-hosted-runners) are all configured to match what GitHub provides.
-- **Local Task Runner** - I love [make](<https://en.wikipedia.org/wiki/Make_(software)>). However, I also hate repeating myself. With `act`, you can use the GitHub Actions defined in your `.github/workflows/` to replace your `Makefile`!
+The scrape process is completed by running a single Python script: ofsted_childrens_services_inspection_scrape.py
 
-# How Does It Work?
 
-When you run `act` it reads in your GitHub Actions from `.github/workflows/` and determines the set of actions that need to be run. It uses the Docker API to either pull or build the necessary images, as defined in your workflow files and finally determines the execution path based on the dependencies that were defined. Once it has the execution path, it then uses the Docker API to run containers for each action based on the images prepared earlier. The [environment variables](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables) and [filesystem](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#file-systems) are all configured to match what GitHub provides.
+## Export(s)
+There are currently three exports from the script. 
+### Results HTML page
+Generated (as ./index.html) to display a refreshed subset of the ILACS results summary. 
 
-Let's see it in action with a [sample repo](https://github.com/cplee/github-actions-demo)!
+### Results Overview Summary
+The complete ILACS overview spreadsheet, exported to the git project root ./ as an .xlsx file for ease and also accessible via a download link from the generated web-site results page (index.html)
 
-![Demo](https://github.com/nektos/act/wiki/quickstart/act-quickstart-2.gif)
+### All CS inspections reports
+During the scrape process, because we scan all the related CS inspection pdf reports for each LA; these can be/are packaged up into tidy LA named folders (urn_LAname) within the git repo (./export_data/inspection_reports/). There is a lot of data here, but if you download the entire export_data folder after the script has run, with the overview summary sheet then the local_inspection_reports column active links will work and you can then easily access each LA's previous reports all in once place via the supplied hyperlink(s). *Note:* This is currently not an option when viewing the results on the web page/Git Pages; but we are happy to clarify how to access/use this element if you get in touch. 
 
-# Installation
+## Known Bugs
+Some LA's inspection reports have PDF encoding or inconsistent data in the published reports that is causing extraction issues & null data. 
+We're working to address these, these are:
+- southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade]
+- nottingham, [inspection_framework, inspection_date]
+- redcar and cleveland, [inspection_framework, inspection_date]
+- knowsley, [inspector_name]
+- stoke-on-trent, [inspector_name]
 
-## Necessary prerequisites for running `act`
 
-`act` depends on `docker` to run workflows.
+## Imports(s)
+There are currently two flat file(.csv) imports used. (/import_data/..)
+### LA Lookup (/import_data/la_lookup/)
+Allows us to add further LA related data including such as the historic LA codes still in use for some areas, but also enablers for further work, for example ONS region identifiers, and which CMS system LA's are using.
+### Geospatial (/import_data/geospatial/)
+This part of some ongoing work to access data we can use to enrich the Ofsted data with location based information, thus allowing us to visualise results on a map/choropleth. Some of the work towards this is completed, however because LA's geographical deliniations don't always map to ONS data, we're in the process of finding some work-arounds. The code and the reduced* GeoJSON data are there if anyone would like to fork the project and suggestion solutions. *GeoJSON data has been pre-processed to reduce the usually large file size and enable it within this repo/processing. 
 
-If you are using macOS, please be sure to follow the steps outlined in [Docker Docs for how to install Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/).
 
-If you are using Windows, please follow steps for [installing Docker Desktop on Windows](https://docs.docker.com/docker-for-windows/install/).
+## Future work
+- We have started some early placeholder work on sentiment analysis of the inspection reports. At the moment, this is only shown in the Excel download summary (not on the web based summary to improve readability). The positive/negative sentiment within the inspection reports needs some further work developing both the thresholds and more detailed work on better understanding the report text. 
 
-If you are using Linux, you will need to [install Docker Engine](https://docs.docker.com/engine/install/).
+- Some of the in-progress efforts are included as a point of discuss or stepping stone for others to develop within the download .xlsx file. For example a set of columns detailing simplistic inspection sentiment analysis based on the language used in the most recent report (ref cols: sentiment_score, inspectors_median_sentiment_score, sentiment_summary, main_inspection_topics). *Note that the inclusion of these columns does not dictate that the scores are accurate, these additions are a starting point for discussion|suggestions and development!!*
 
-`act` is currently not supported with `podman` or other container backends (it might work, but it's not guaranteed). Please see [#303](https://github.com/nektos/act/issues/303) for updates.
+- Geographical/Geospatial visualisations of results by region, la etc. are in progress. The basis for this is aready in place but some anomolies with how LA/counties boundary data is configured is an issue for some and thus the representation requires a bit more thought. 
 
-## Installation through package managers
+- Improved automated workflow. We're currently still running the script manually until fixes can be applied to enable the Git Workflow(s) to run automatically/on a daily basis. We have the needed workflow scripts in place, but there is an ongoing issue in getting the py script to auto-run. Manual runs of the py script(+push/pull action) do correctly initiate the refresh of the html/GitPage.
 
-### [Homebrew](https://brew.sh/) (Linux/macOS)
+- Provide active link access to all previous reports via the web front end. This currently only available when all post-script run files/folders are downloaded(this a v.large download if all LA folders included).
 
-[![homebrew version](https://img.shields.io/homebrew/v/act)](https://github.com/Homebrew/homebrew-core/blob/master/Formula/act.rb)
+- Further development|bespoke work to improve potential tie-in with existing LA work that could use this tool or the resultant data. 
 
-```shell
-brew install act
-```
 
-or if you want to install version based on latest commit, you can run below (it requires compiler to be installed installed but Homebrew will suggest you how to install it, if you don't have it):
+#### Contact via : datatoinsight.enquiries AT gmail.com
 
-```shell
-brew install act --HEAD
-```
 
-### [MacPorts](https://www.macports.org) (macOS)
+## Script admin notes
+Simplified notes towards repo/script admin processes and enabling/instructions for non-admin running. 
+### Script run intructions (User)
+If looking to obtain a full instant refresh of the ilacs output, the ofsted_childrens_services_inspection_scrape.PY should be run. These instructions for running in the cloud/Github. 
+- Create a new Codespace (on main)
+- Type run the following bash script at Terminal prompt to set up './setup.sh'
+- Run the script (can right click script file and select 'run in python....'
+- Download the now refreshed ofsted_childrens_services_inspection_scrape.XLSX (Right click, download)
+- Close codespace (Github will auto-remove unused spaces later)
+  
+### Run notes (Admin)
+If you experience a permissions error running the setup bash file. 
 
-[![MacPorts package](https://repology.org/badge/version-for-repo/macports/act-run-github-actions.svg)](https://repology.org/project/act-run-github-actions/versions)
+/workspaces/ofsted-ilacs-scrape-tool (main) $ ./setup.sh
+bash: ./setup.sh: Permission denied
 
-```shell
-sudo port install act
-```
-
-### [Chocolatey](https://chocolatey.org/) (Windows)
-
-[![choco-shield](https://img.shields.io/chocolatey/v/act-cli)](https://community.chocolatey.org/packages/act-cli)
-
-```shell
-choco install act-cli
-```
-
-### [Scoop](https://scoop.sh/) (Windows)
-
-[![scoop-shield](https://img.shields.io/scoop/v/act)](https://github.com/ScoopInstaller/Main/blob/master/bucket/act.json)
-
-```shell
-scoop install act
-```
-
-### [AUR](https://aur.archlinux.org/packages/act/) (Linux)
-
-[![aur-shield](https://img.shields.io/aur/version/act)](https://aur.archlinux.org/packages/act/)
-
-```shell
-yay -S act
-```
-
-### [COPR](https://copr.fedorainfracloud.org/coprs/rubemlrm/act-cli/) (Linux)
-
-```shell
-dnf copr enable rubemlrm/act-cli
-dnf install act-cli
-```
-
-### [Nix](https://nixos.org) (Linux/macOS)
-
-[Nix recipe](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/misc/act/default.nix)
-
-Global install:
-
-```sh
-nix-env -iA nixpkgs.act
-```
-
-or through `nix-shell`:
-
-```sh
-nix-shell -p act
-```
-
-Using the latest [Nix command](https://nixos.wiki/wiki/Nix_command), you can run directly :
-
-```sh
-nix run nixpkgs#act
-```
-
-## Other install options
-
-### Bash script
-
-Run this command in your terminal:
-
-```shell
-curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-```
-
-### Manual download
-
-Download the [latest release](https://github.com/nektos/act/releases/latest) and add the path to your binary into your PATH.
-
-# Example commands
-
-```sh
-# Command structure:
-act [<event>] [options]
-If no event name passed, will default to "on: push"
-
-# List the actions for the default event:
-act -l
-
-# List the actions for a specific event:
-act workflow_dispatch -l
-
-# Run the default (`push`) event:
-act
-
-# Run a specific event:
-act pull_request
-
-# Run a specific job:
-act -j test
-
-# Run in dry-run mode:
-act -n
-
-# Enable verbose-logging (can be used with any of the above commands)
-act -v
-```
-
-## First `act` run
-
-When running `act` for the first time, it will ask you to choose image to be used as default.
-It will save that information to `~/.actrc`, please refer to [Configuration](#configuration) for more information about `.actrc` and to [Runners](#runners) for information about used/available Docker images.
-
-# Flags
-
-```none
-  -a, --actor string                     user that triggered the event (default "nektos/act")
-      --artifact-server-path string      Defines the path where the artifact server stores uploads and retrieves downloads from. If not specified the artifact server will not start.
-      --artifact-server-port string      Defines the port where the artifact server listens (will only bind to localhost). (default "34567")
-  -b, --bind                             bind working directory to container, rather than copy
-      --container-architecture string    Architecture which should be used to run containers, e.g.: linux/amd64. If not specified, will use host default architecture. Requires Docker server API Version 1.41+. Ignored on earlier Docker server platforms.
-      --container-cap-add stringArray    kernel capabilities to add to the workflow containers (e.g. --container-cap-add SYS_PTRACE)
-      --container-cap-drop stringArray   kernel capabilities to remove from the workflow containers (e.g. --container-cap-drop SYS_PTRACE)
-      --container-daemon-socket string   Path to Docker daemon socket which will be mounted to containers (default "/var/run/docker.sock")
-      --defaultbranch string             the name of the main branch
-      --detect-event                     Use first event type from workflow as event that triggered the workflow
-  -C, --directory string                 working directory (default ".")
-  -n, --dryrun                           dryrun mode
-      --env stringArray                  env to make available to actions with optional value (e.g. --env myenv=foo or --env myenv)
-      --env-file string                  environment file to read and use as env in the containers (default ".env")
-  -e, --eventpath string                 path to event JSON file
-      --github-instance string           GitHub instance to use. Don't use this if you are not using GitHub Enterprise Server. (default "github.com")
-  -g, --graph                            draw workflows
-  -h, --help                             help for act
-      --insecure-secrets                 NOT RECOMMENDED! Doesn't hide secrets while printing logs.
-  -j, --job string                       run job
-  -l, --list                             list workflows
-      --no-recurse                       Flag to disable running workflows from subdirectories of specified path in '--workflows'/'-W' flag
-  -P, --platform stringArray             custom image to use per platform (e.g. -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04)
-      --privileged                       use privileged mode
-  -p, --pull                             pull docker image(s) even if already present
-  -q, --quiet                            disable logging of output from steps
-      --rebuild                          rebuild local action docker image(s) even if already present
-  -r, --reuse                            don't remove container(s) on successfully completed workflow(s) to maintain state between runs
-      --rm                               automatically remove container(s)/volume(s) after a workflow(s) failure
-  -s, --secret stringArray               secret to make available to actions with optional value (e.g. -s mysecret=foo or -s mysecret)
-      --secret-file string               file with list of secrets to read from (e.g. --secret-file .secrets) (default ".secrets")
-      --use-gitignore                    Controls whether paths specified in .gitignore should be copied into container (default true)
-      --userns string                    user namespace to use
-  -v, --verbose                          verbose output
-  -w, --watch                            watch the contents of the local repo and run when files change
-  -W, --workflows string                 path to workflow file(s) (default "./.github/workflows/")
-```
-
-## `GITHUB_TOKEN`
-
-Github [automatically provides](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret) a `GITHUB_TOKEN` secret when running workflows inside Github.
-
-If your workflow depends on this token, you need to create a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and pass it to `act` as a secret:
-
-```bash
-act -s GITHUB_TOKEN=[insert token or leave blank for secure input]
-```
-
-**WARNING**: `GITHUB_TOKEN` will be logged in shell history if not inserted through secure input or (depending on your shell config) the command is prefixed with a whitespace.
-
-# Known Issues
-
-## Services
-
-Services are not currently supported but are being worked on. See: https://github.com/nektos/act/issues/173
-
-## `MODULE_NOT_FOUND`
-
-A `MODULE_NOT_FOUND` during `docker cp` command [#228](https://github.com/nektos/act/issues/228) can happen if you are relying on local changes that have not been pushed. This can get triggered if the action is using a path, like:
-
-```yaml
-- name: test action locally
-  uses: ./
-```
-
-In this case, you _must_ use `actions/checkout@v2` with a path that _has the same name as your repository_. If your repository is called _my-action_, then your checkout step would look like:
-
-```yaml
-steps:
-  - name: Checkout
-    uses: actions/checkout@v2
-    with:
-      path: "my-action"
-```
-
-If the `path:` value doesn't match the name of the repository, a `MODULE_NOT_FOUND` will be thrown.
-
-## `docker context` support
-
-The current `docker context` isn't respected ([#583](https://github.com/nektos/act/issues/583)).
-
-You can work around this by setting `DOCKER_HOST` before running `act`, with e.g:
-
-```bash
-export DOCKER_HOST=$(docker context inspect --format '{{.Endpoints.docker.Host}}')
-```
-
-# Runners
-
-GitHub Actions offers managed [virtual environments](https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners) for running workflows. In order for `act` to run your workflows locally, it must run a container for the runner defined in your workflow file. Here are the images that `act` uses for each runner type and size:
-
-| GitHub Runner   | Micro Docker Image               | Medium Docker Image                                       | Large Docker Image                                         |
-| --------------- | -------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------- |
-| `ubuntu-latest` | [`node:16-buster-slim`][micro]   | [`ghcr.io/catthehacker/ubuntu:act-latest`][docker_images] | [`ghcr.io/catthehacker/ubuntu:full-latest`][docker_images] |
-| `ubuntu-22.04`  | [`node:16-bullseye-slim`][micro] | [`ghcr.io/catthehacker/ubuntu:act-22.04`][docker_images]  | `unavailable`                                              |
-| `ubuntu-20.04`  | [`node:16-buster-slim`][micro]   | [`ghcr.io/catthehacker/ubuntu:act-20.04`][docker_images]  | [`ghcr.io/catthehacker/ubuntu:full-20.04`][docker_images]  |
-| `ubuntu-18.04`  | [`node:16-buster-slim`][micro]   | [`ghcr.io/catthehacker/ubuntu:act-18.04`][docker_images]  | [`ghcr.io/catthehacker/ubuntu:full-18.04`][docker_images]  |
-
-[micro]: https://hub.docker.com/_/buildpack-deps
-[docker_images]: https://github.com/catthehacker/docker_images
-
-Windows and macOS based platforms are currently **unsupported and won't work** (see issue [#97](https://github.com/nektos/act/issues/97))
-
-## Please see [IMAGES.md](./IMAGES.md) for more information about the Docker images that can be used with `act`
-
-## Default runners are intentionally incomplete
-
-These default images do **not** contain **all** the tools that GitHub Actions offers by default in their runners.
-Many things can work improperly or not at all while running those image.
-Additionally, some software might still not work even if installed properly, since GitHub Actions are running in fully virtualized machines while `act` is using Docker containers (e.g. Docker does not support running `systemd`).
-In case of any problems [please create issue](https://github.com/nektos/act/issues/new/choose) in respective repository (issues with `act` in this repository, issues with `nektos/act-environments-ubuntu:18.04` in [`nektos/act-environments`](https://github.com/nektos/act-environments) and issues with any image from user `catthehacker` in [`catthehacker/docker_images`](https://github.com/catthehacker/docker_images))
-
-## Alternative runner images
-
-If you need an environment that works just like the corresponding GitHub runner then consider using an image provided by [nektos/act-environments](https://github.com/nektos/act-environments):
-
-- [`nektos/act-environments-ubuntu:18.04`](https://hub.docker.com/r/nektos/act-environments-ubuntu/tags) - built from the Packer file GitHub uses in [actions/virtual-environments](https://github.com/actions/runner).
-
-:warning: :elephant: `*** WARNING - this image is >18GB 😱***`
-
-- [`ghcr.io/catthehacker/ubuntu:full-*`](https://github.com/catthehacker/docker_images/pkgs/container/ubuntu) - built from Packer template provided by GitHub, see [catthehacker/virtual-environments-fork](https://github.com/catthehacker/virtual-environments-fork) or [catthehacker/docker_images](https://github.com/catthehacker/docker_images) for more information
-
-## Use an alternative runner image
-
-To use a different image for the runner, use the `-P` option.
-
-```sh
-act -P <platform>=<docker-image>
-```
-
-If your workflow uses `ubuntu-18.04`, consider below line as an example for changing Docker image used to run that workflow:
-
-```sh
-act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04
-```
-
-If you use multiple platforms in your workflow, you have to specify them to change which image is used.
-For example, if your workflow uses `ubuntu-18.04`, `ubuntu-16.04` and `ubuntu-latest`, specify all platforms like below
-
-```sh
-act -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04 -P ubuntu-latest=ubuntu:latest -P ubuntu-16.04=node:16-buster-slim
-```
-
-# Secrets
-
-To run `act` with secrets, you can enter them interactively, supply them as environment variables or load them from a file. The following options are available for providing secrets:
-
-- `act -s MY_SECRET=somevalue` - use `somevalue` as the value for `MY_SECRET`.
-- `act -s MY_SECRET` - check for an environment variable named `MY_SECRET` and use it if it exists. If the environment variable is not defined, prompt the user for a value.
-- `act --secret-file my.secrets` - load secrets values from `my.secrets` file.
-  - secrets file format is the same as `.env` format
-
-# Configuration
-
-You can provide default configuration flags to `act` by either creating a `./.actrc` or a `~/.actrc` file. Any flags in the files will be applied before any flags provided directly on the command line. For example, a file like below will always use the `nektos/act-environments-ubuntu:18.04` image for the `ubuntu-latest` runner:
-
-```sh
-# sample .actrc file
--P ubuntu-latest=nektos/act-environments-ubuntu:18.04
-```
-
-Additionally, act supports loading environment variables from an `.env` file. The default is to look in the working directory for the file but can be overridden by:
-
-```sh
-act --env-file my.env
-```
-
-`.env`:
-
-```env
-MY_ENV_VAR=MY_ENV_VAR_VALUE
-MY_2ND_ENV_VAR="my 2nd env var value"
-```
-
-# Skipping steps
-
-Act adds a special environment variable `ACT` that can be used to skip a step that you
-don't want to run locally. E.g. a step that posts a Slack message or bumps a version number.
-
-```yml
-- name: Some step
-  if: ${{ !env.ACT }}
-  run: |
-    ...
-```
-
-# Events
-
-Every [GitHub event](https://developer.github.com/v3/activity/events/types) is accompanied by a payload. You can provide these events in JSON format with the `--eventpath` to simulate specific GitHub events kicking off an action. For example:
-
-```json
-{
-  "pull_request": {
-    "head": {
-      "ref": "sample-head-ref"
-    },
-    "base": {
-      "ref": "sample-base-ref"
-    }
-  }
-}
-```
-
-```sh
-act -e pull-request.json
-```
-
-Act will properly provide `github.head_ref` and `github.base_ref` to the action as expected.
-
-# GitHub Enterprise
-
-Act supports using and authenticating against private GitHub Enterprise servers.
-To use your custom GHE server, set the CLI flag `--github-instance` to your hostname (e.g. `github.company.com`).
-
-Please note that if your GHE server requires authentication, we will use the secret provided via `GITHUB_TOKEN`.
-
-Please also see the [official documentation for GitHub actions on GHE](https://docs.github.com/en/enterprise-server@3.0/admin/github-actions/about-using-actions-in-your-enterprise) for more information on how to use actions.
-
-# Support
-
-Need help? Ask on [Gitter](https://gitter.im/nektos/act)!
-
-# Contributing
-
-Want to contribute to act? Awesome! Check out the [contributing guidelines](CONTRIBUTING.md) to get involved.
-
-## Manually building from source
-
-- Install Go tools 1.18+ - (<https://golang.org/doc/install>)
-- Clone this repo `git clone git@github.com:nektos/act.git`
-- Run unit tests with `make test`
-- Build and install: `make install`
+then type the following, and try again: 
+chmod +x setup.sh
