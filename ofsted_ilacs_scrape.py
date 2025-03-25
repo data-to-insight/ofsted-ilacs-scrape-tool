@@ -135,15 +135,17 @@ logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime
 
 
 
-# Needed towards git actions workflow
-# Use GITHUB_WORKSPACE env var if available(workflow actions), 
+# Needed towards i) git actions workflow ii) saving output html updates
+# Use GITHUB_WORKSPACE env var(str) if available(workflow actions), 
 # otherwise fall back to the default path(codespace).
-repo = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-ilacs-scrape-tool')
+repo_path = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-jtai-scrape-tool')
+print("Using repo path:", repo_path)
 
 try:
-    repo_path = git.Repo(repo)
+    # repo object using path string
+    repo = git.Repo(repo_path)
 except git.exc.NoSuchPathError:
-    print(f"Error initialising repo path for inspection reports: {repo}")
+    print(f"Error initialising repo path for inspection reports: {repo_path}")
     raise
 
 
@@ -1224,12 +1226,13 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     # specific folder to monitor for changes
     inspection_reports_folder = 'export_data/inspection_reports'
 
-    try:
-        # Init the repo object (so we know starting point for monitoring changes)
-        repo = git.Repo(repo_path) 
-    except Exception as e:
-        print(f"Error initialising defined repo path for inspection reports: {e}")
-        raise
+
+    # try:
+    #     # Init the repo object (so we know starting point for monitoring changes)
+    #     repo = git.Repo(repo_path) 
+    # except Exception as e:
+    #     print(f"Error initialising defined repo path for inspection reports: {e}")
+    #     raise
     
     try:
     # Get current status of repo
