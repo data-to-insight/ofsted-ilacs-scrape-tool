@@ -25,7 +25,20 @@ pdf_data_capture = True # True is default (scrape within pdf inspection reports 
                         # False == only pdfs/list of LA's+link to most recent exported. Not inspection results.
 
 
-repo_path = '/workspaces/ofsted-ilacs-scrape-tool'
+
+
+# Needed towards git actions workflow
+# Use GITHUB_WORKSPACE environment variable if available,
+# otherwise fall back to the default path.
+repo = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-ilacs-scrape-tool')
+
+try:
+    repo_path = git.Repo(repo)
+except git.exc.NoSuchPathError:
+    print(f"Error initialising repo path for inspection reports: {repo}")
+    # Handle the error as needed, for example, exit or use an alternative approach.
+    raise
+
 
 
 
@@ -67,8 +80,8 @@ max_results = 160  # expecting 153 @110225
 #
 # Script admin settings
 
-# Non-standard modules that might need installing
-import os
+# Non-standard mods
+import os # also used in git actions workflow
 import io
 import requests
 from requests.exceptions import RequestException #  HTTP requests excep' class
@@ -79,8 +92,11 @@ from bs4 import BeautifulSoup
 import re       
 from datetime import datetime, timedelta # timedelta enables server time adjustment
 import json
-import git # possible case for just: from git import Repo
+import git # possible case for just: from git import Repo (needed also for git actions workflow)
 
+
+## Note: 
+## sentiment analysis needing further work/on hold and related processing blocks also commented
 # import nltk
 # nltk.download('punkt')      # tokeniser models/sentence segmentation
 # nltk.download('stopwords')  # stop words ready for text analysis|NLP preprocessing
@@ -94,6 +110,13 @@ import git # possible case for just: from git import Repo
 #     # sh "/Applications/Python 3.11/Install Certificates.command"
 # except ModuleNotFoundError:
 #     print("Please install 'textblob' and 'gensim' using pip")
+
+# #sentiment
+# try:
+#     from sklearn.metrics.pairwise import cosine_similarity
+#     from sklearn.feature_extraction.text import CountVectorizer
+# except ModuleNotFoundError:
+#     print("Please install 'scikit-learn' using pip")
 
 
 # pdf search/data extraction
@@ -110,11 +133,6 @@ try:
 except ModuleNotFoundError:
     print("Please install 'openpyxl' and 'xlsxwriter' using pip")
 
-try:
-    from sklearn.metrics.pairwise import cosine_similarity
-    from sklearn.feature_extraction.text import CountVectorizer
-except ModuleNotFoundError:
-    print("Please install 'scikit-learn' using pip")
 
 # Configure logging/logging module
 import warnings
@@ -1531,7 +1549,6 @@ def plot_filtered_topics(filtered_topics):
 #
 
 
-data = []
 while start < max_results:
     # Construct URL for current chunk
     url = url_stem + search_url + pagination_param.format(start=start)
