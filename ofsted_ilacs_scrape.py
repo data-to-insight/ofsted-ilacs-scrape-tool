@@ -73,9 +73,6 @@ max_results = 160  # expecting 153 @110225
 # search_category = 3         # Default 3  == 'Childrens social care' (range 1 -> 4)
 # search_sub_category = 12    # Default 12 == 'Local Authority Childrens Services' (range 8 -> 12)
 
-# url_search_stem = 'search?q=&location=&radius='
-# url = url_stem + url_search_stem + '&level_1_types=' + str(search_category) + '&level_2_types=' + str(search_sub_category) + max_page_results_url
-
 
 #
 # Script admin settings
