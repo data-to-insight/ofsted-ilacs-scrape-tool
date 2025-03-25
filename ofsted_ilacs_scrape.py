@@ -27,23 +27,6 @@ pdf_data_capture = True # True is default (scrape within pdf inspection reports 
 
 
 
-
-# Needed towards git actions workflow
-# Use GITHUB_WORKSPACE env var if available(workflow actions), 
-# otherwise fall back to the default path(codespace).
-repo = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-ilacs-scrape-tool')
-
-try:
-    repo_path = git.Repo(repo)
-except git.exc.NoSuchPathError:
-    print(f"Error initialising repo path for inspection reports: {repo}")
-    raise
-
-
-
-
-
-
 #
 # Ofsted site/page admin settings
 
@@ -146,6 +129,21 @@ logging.getLogger('org.apache.pdfbox').setLevel(logging.ERROR)
 warnings.filterwarnings('ignore')
 
 logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+
+
+
+
+# Needed towards git actions workflow
+# Use GITHUB_WORKSPACE env var if available(workflow actions), 
+# otherwise fall back to the default path(codespace).
+repo = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-ilacs-scrape-tool')
+
+try:
+    repo_path = git.Repo(repo)
+except git.exc.NoSuchPathError:
+    print(f"Error initialising repo path for inspection reports: {repo}")
+    raise
+
 
 
 
