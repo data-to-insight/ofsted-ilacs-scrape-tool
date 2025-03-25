@@ -3,6 +3,7 @@ textblob
 # gensim
 nltk
 xlsxwriter
+PyMuPDF
 PyPDF2
 requests
 beautifulsoup4
