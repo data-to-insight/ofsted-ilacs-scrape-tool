@@ -1,8 +1,9 @@
 # Ofsted-ILACS-Scrape-Tool
-On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages
+On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages  
 Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 -
-### The inspection reports output summary is refreshed on a weekly basis, usually on the first working day.   
+### The inspection reports output summary is refreshed on at least a weekly basis, and are timestamped for reference. 
+
 
 ## Initial problem brief
 D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published mcuh more regularly, can we access that data/results directly ourselves and re-create a similar summary to the ADCS version. Perhaps if we can, is there any other data elements that we can bring in to increase the potential use-cases for this data. 
@@ -12,7 +13,7 @@ This project is based on a proof-of-concept, 'can we do this' basis. As such it'
 
 The results structure and returned data is based almost entirely on the originating ILACS Summary produced/refreshed periodically by the ADCS; the use of which has previously underpinned several D2I projects. We're aware of several similar collections of longer-term work on and surrounding the Ofsted results theme, and would be happy to hear from those who perhaps also have bespoke ideas for changes here that would assist their own work. 
 
-The scrape process is completed by running a single Python script: ofsted_childrens_services_inspection_scrape.py
+The scrape process is completed by running a single Python script: ofsted_ilacs_scrape.py
 
 
 ## Export(s)
