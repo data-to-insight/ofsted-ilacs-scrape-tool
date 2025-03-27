@@ -818,7 +818,7 @@ def process_provider_links(provider_links):
 
                 # # Turn this OFF to minimise data 
                 # # Download and stores locally each relevant PDF! 
-                # pdf_content = requests.get(pdf_link['href']).content
+                pdf_content = requests.get(pdf_link['href']).content
                 # with open(os.path.join(provider_dir, filename), 'wb') as f:
                 #     f.write(pdf_content)
                 # ## END data reduction
