@@ -74,7 +74,7 @@ import re
 from datetime import datetime, timedelta # timedelta enables server time adjustment
 import json
 import git # possible case for just: from git import Repo (needed also for git actions workflow)
-
+import time
 
 ## Note: 
 ## sentiment analysis needing further work/on hold and related processing blocks also commented
@@ -172,10 +172,10 @@ def get_soup(url, retries=3, delay=5):
             response.raise_for_status()  # any HTTP errors?
             soup = BeautifulSoup(response.content, 'html.parser')
             return soup
-        except Timeout:
+        except requests.Timeout:
             print(f"Timeout getting URL '{url}' on attempt {attempt + 1}. Retrying after {delay} secs...")
             time.sleep(delay)
-        except HTTPError as e:
+        except requests.HTTPError as e:
             print(f"HTTP error getting URL '{url}': {e}")
             return None  # end retries on client and server errors
         except RequestException as e:
