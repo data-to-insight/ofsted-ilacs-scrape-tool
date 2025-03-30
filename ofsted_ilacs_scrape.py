@@ -138,7 +138,7 @@ logging.basicConfig(filename='output.log', level=logging.INFO, format='%(asctime
 # Needed towards i) git actions workflow ii) saving output html updates
 # Use GITHUB_WORKSPACE env var(str) if available(workflow actions), 
 # otherwise fall back to the default path(codespace).
-repo_path = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-jtai-scrape-tool')
+repo_path = os.environ.get('GITHUB_WORKSPACE', '/workspaces/ofsted-ilacs-scrape-tool')
 print("Using repo path:", repo_path)
 
 try:
