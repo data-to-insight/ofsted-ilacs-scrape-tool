@@ -102,7 +102,7 @@ import git # possible case for just: from git import Repo (needed also for git a
 
 # pdf search/data extraction
 try:
-    import tabula  
+    import tabula  # uses Java to extract tables from PDF
     import PyPDF2 # depreciated 090225 - need to swap back to pypdf! 
 except ModuleNotFoundError as e:
     print(f"Module not found: {e}. Please install the required packages(tabula-py|PyPDF2).")
