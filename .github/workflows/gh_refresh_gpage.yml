@@ -5,9 +5,14 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
-    schedule:
-      - cron: '0 5 * * *' # 05:00 UST
-      # - cron: '30 10 * * *' # e.g. 10:30 UST
+  schedule:
+    #  - cron: '0 5 * * *' # 05:00 UST
+    # - cron: '30 10 * * *' # e.g. 10:30 UST
+      - cron: '50 8 * * *' # e.g. 8:50 UST
+permissions:
+  contents: write  # Allow repo updates
+  pages: write
+  id-token: write
   
 
 permissions:
