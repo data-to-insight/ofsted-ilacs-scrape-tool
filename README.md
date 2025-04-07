@@ -2,7 +2,7 @@
 On demand Ofsted ILACS results summary via inspection reports scrape from the Ofsted.gov pages  
 Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 -
-### The inspection reports output summary is refreshed on at least a weekly basis, and are timestamped for reference. 
+### The inspection reports output summary is refreshed daily and timestamped for reference. 
 
 
 ## Initial problem brief
