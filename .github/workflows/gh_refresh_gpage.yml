@@ -25,7 +25,7 @@ jobs:
       # we need the fortran(scikit) and java(pdf extract) coerced for scheduled running
         run: |
           sudo apt-get update
-          sudo apt-get install -y gfortran default-jre
+          sudo apt-get install -y gfortran default-jre graphviz
 
       - name: Set up Python
         uses: actions/setup-python@v2

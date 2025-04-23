@@ -18,6 +18,7 @@ inspections_subfolder = 'inspection_reports'    # downloaded report pdfs
 import_la_data_path = 'import_data/la_lookup/'
 import_geo_data_path = 'import_data/geospatial/'
 geo_boundaries_filename = 'local_authority_districts_boundaries.json'
+sccm_graph_filename = 'sccm_graph_static.svg'
 
 # scrape inspection grade/data from pdf reports
 pdf_data_capture = True # True is default (scrape within pdf inspection reports for inspection results etc)
@@ -1180,13 +1181,13 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     <a href="{export_summary_filename}.xlsx">download here</a> as an .xlsx file.
     <br/>Data summary is based on the original <i>ILACS Outcomes Summary</i> published periodically by the ADCS:
     <a href="https://adcs.org.uk/inspection/article/ilacs-outcomes-summary">https://adcs.org.uk/inspection/article/ilacs-outcomes-summary</a>.
-    <a href="https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/blob/main/README.md">Read the tool/project background details and future work.</a>.
+    <a href="https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/blob/main/README.md">Read the tool/project background details and future work.</a>.<br/>
+    Exploratory efforts towards alligning this tools context with <a href="https://www.smartcityconceptmodel.com">Smart Cities Concept Model (SCCM)</a> : <a href="{sccm_graph_filename}" target="_blank">viewable here</a>.
     """
 
     disclaimer_text = f"""
     Disclaimer: This summary is built from scraped data direct from https://reports.ofsted.gov.uk/ published PDF inspection report files.
-    As a result of the nuances|variance within the inspection report content or PDF encoding, we're noting some problematic data extraction for a small number of LAs*.<br/>
-    *LA extraction issues: southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade], nottingham,[inspection_framework, inspection_date], 
+    As a result of the nuances|variance within the inspection report content or PDF encoding, we're noting some problematic data extraction for a small number of LAs. Including: southend-on-sea, [overall, help_and_protection_grade,care_leavers_grade], nottingham,[inspection_framework, inspection_date], 
     redcar and cleveland,[inspection_framework, inspection_date], knowsley,[inspector_name], stoke-on-trent,[inspector_name]<br/>
     <a href="mailto:{d2i_contact_email}?subject=Ofsted-Scrape-Tool">Feedback</a> on specific problems|inaccuracies|suggestions welcomed.*
     """

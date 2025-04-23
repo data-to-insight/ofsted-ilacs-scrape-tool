@@ -1,6 +1,5 @@
 tabula-py
 textblob
-# gensim
 nltk
 xlsxwriter
 PyMuPDF
@@ -8,6 +7,11 @@ PyPDF2
 requests
 beautifulsoup4
 GitPython
+jinja2==3.1.2
+pyyaml
+networkx
+pydot
+
 
 # 080424 RH
 # Latest scipy version not compatible due to : scipy.linalg functions tri, triu & tril are deprecated and will be removed in SciPy 1.13.
