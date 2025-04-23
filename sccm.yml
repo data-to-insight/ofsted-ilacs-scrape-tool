@@ -1,0 +1,83 @@
+project:
+  name: Ofsted-ILACS-Scrape-Tool
+  description: >
+    Python tool that performs daily scrape of public Ofsted ILACS (Inspection of Local Authority Children’s Services)
+    reports for all 153 local authorities in England. Processed data potentially supports analysis of service quality, inspection frequency,
+    and regional patterns in children's social care provision.
+
+sccm_alignment:
+  entities:
+    - name: Organisation
+      description: Local authorities being inspected; Ofsted as the inspecting agency
+    - name: Service
+      description: Children’s social care services subject to inspection
+    - name: Person
+      description: Individuals such as children in care and social workers (implicitly referenced in reports)
+    - name: Place
+      description: Local authority area in England where inspection occurs
+
+  relationships:
+    - subject: Organisation
+      predicate: inspects
+      object: Organisation
+    - subject: Service
+      predicate: delivered_by
+      object: Organisation
+    - subject: Person
+      predicate: receives
+      object: Service
+
+data_layers:
+  operational:
+    description: Raw HTML reports from the Ofsted website, scraped and normalised daily
+    data_sources:
+      - name: Ofsted Report Search
+        type: Web scrape
+        url: https://reports.ofsted.gov.uk/search?q=&location=&lat=&lon=&radius=&level_1_types=3&level_2_types%5B%5D=12
+  statistical:
+    description: Summaries by inspection rating, region, and inspection type
+    data_outputs:
+      - name: ofsted_csc_ilacs_overview
+        format: XLSX
+        location: /ofsted_csc_ilacs_overview.xlsx
+      - name: index
+        format: HTML
+        location: /index.html    
+  analytical:
+    description: Analysis of trends, outliers, and changes in service performance over time
+    tools_used:
+      - pandas
+      - BeautifulSoup
+      - matplotlib
+  political:
+    description: Evidence for evaluating children’s services strategy and oversight
+    stakeholders:
+      - name: Department for Education
+      - name: Ofsted
+      - name: Local Authority Children's Services SLT
+
+external_influences:
+  stakeholders:
+    - name: Ofsted
+      role: Data publisher and regulator
+      organisation: Office for Standards in Education
+      projects_influenced:
+        - Ofsted-ILACS-Scrape-Tool
+        - Ofsted-SEND-Scrape-Tool
+        - Ofsted-JTAI-Scrape-Tool
+    - name: Local Authorities
+      role: Both subject of inspection and potential consumers of analysis
+      organisation: Various across England
+  organisations:
+    - name: Local Government Association
+      role: Strategic consumer of inspection insights
+      interaction: Policy development and improvement planning
+
+metadata:
+  version: 0.2
+  last_updated: 2025-04-23
+  author: Data to Insight
+  homepage: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
+  related_projects:
+    - https://data-to-insight.github.io/ofsted-send-scrape-tool/
+    - https://data-to-insight.github.io/ofsted-jtai-scrape-tool/
