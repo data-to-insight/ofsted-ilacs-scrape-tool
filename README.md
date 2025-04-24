@@ -38,8 +38,7 @@ We're working to address these, these are:
 
 ## Smart City Concept Model (SCCM)
 <img src="./sccm_graph_static.png" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%"> <br/>  
-- [istanduk.org Initial SCCM Project](https://istanduk.org/projects/smart-cities-concept-model/) <br/>    
-- [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/><br/><br/>  
+[istanduk.org Initial SCCM Project](https://istanduk.org/projects/smart-cities-concept-model/) & [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/><br/><br/>  
 
 ## Imports(s)
 There are currently two flat file(.csv) imports used. (/import_data/..)
