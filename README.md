@@ -6,7 +6,7 @@ Published: https://data-to-insight.github.io/ofsted-ilacs-scrape-tool/
 
 
 ## Initial problem brief
-D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published mcuh more regularly, can we access that data/results directly ourselves and re-create a similar summary to the ADCS version. Perhaps if we can, is there any other data elements that we can bring in to increase the potential use-cases for this data. 
+D2I and some local authorities use the ADCS published Ofsted ILACS inspections Excel summary as part of their internal data workflow(s). However the use of this data is restricted by the limited frequency that the summary sheet is (re-)published. Given that Ofsted inspection reports are published much more often(with an irregular publishing pattern), could we access the data/results directly ourselves and re-create a similar or more useful summary. Concurrently, are there also any other data elements that we could bring in to increase the potential use-cases for such a data summary. 
 
 ## Solution overview
 This project is based on a proof-of-concept, 'can we do this' basis. As such it's supplied very much with the disclaimer of 'please check the vitals' if you're embedding it into something more critical, and likewise pls feel free to feedback into the project with suggestions. The structure of the code and processes have much scope for improvement, but some of the initial emphasis was on maintaining a level of code readability so that others might have an easier time of taking it further. That said, we needed to take some of the scrape/cleaning processes further than anticipated due to inconsistencies in the source site/data; this has ultimately impacted the intended 're-usable mvp' approach to codifying a solution for the original problem. 
@@ -36,10 +36,10 @@ We're working to address these, these are:
 - knowsley, [inspector_name]
 - stoke-on-trent, [inspector_name]
 
-## Smart City Concept Model Graph (SCCM)
+## Smart City Concept Model (SCCM)
 <img src="./sccm_graph_static.png" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%"> <br/>  
-- [istanduk.org Smart Cities Concept Project](https://istanduk.org/projects/smart-cities-concept-model/) <br/>    
-- [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/>   
+- [istanduk.org Initial SCCM Project](https://istanduk.org/projects/smart-cities-concept-model/) <br/>    
+- [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/><br/><br/>  
 
 ## Imports(s)
 There are currently two flat file(.csv) imports used. (/import_data/..)
