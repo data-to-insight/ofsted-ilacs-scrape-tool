@@ -37,8 +37,8 @@ We're working to address these, these are:
 - stoke-on-trent, [inspector_name]
 
 ## Smart City Concept Model (SCCM)
-Work in progress. The terminology and relations shown here are not (yet) fully alligned with the SCCM standard(s), we're working towards this.<br/>
-<img src="./sccm_graph_static.png" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%"> <br/>  
+The terminology and relations shown here might not be fully alligned with the SCCM standard(s), this is a work-in-progress.<br/>
+<img src="./sccm_graph_static.svg" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%"> <br/>  
 References: [istanduk.org Initial SCCM Project](https://istanduk.org/projects/smart-cities-concept-model/) & [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/><br/><br/>  
 
 ## Imports(s)
