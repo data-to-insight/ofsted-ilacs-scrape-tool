@@ -37,7 +37,7 @@ We're working to address these, these are:
 - stoke-on-trent, [inspector_name]
 
 ## Smart City Concept Model Graph (SCCM)
-<img src="./sccm_graph_static.svg" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%">
+<img src="./sccm_graph_static.png" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%">
 - [istanduk.org Smart Cities Concept Project](https://istanduk.org/projects/smart-cities-concept-model/)
 - [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com)
 
