@@ -36,6 +36,10 @@ We're working to address these, these are:
 - knowsley, [inspector_name]
 - stoke-on-trent, [inspector_name]
 
+## Smart City Concept Model Graph (SCCM)
+<img src="./sccm_graph_static.svg" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%">
+- [istanduk.org Smart Cities Concept Project](https://istanduk.org/projects/smart-cities-concept-model/)
+- [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com)
 
 ## Imports(s)
 There are currently two flat file(.csv) imports used. (/import_data/..)
