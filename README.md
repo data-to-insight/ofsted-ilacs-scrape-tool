@@ -45,20 +45,20 @@ The terminology and relations shown here might not be fully alligned with the SC
 
 | Entity Label                                    | Type         | Description |
 |------------------------------------------------|--------------|-------------|
-| **Department for Education (DfE)**             | `ORGANIZATION` | UK government body overseeing education and children's services. |
-| **Ofsted**                                     | `ORGANIZATION` | Inspectorate for education and children’s services in England. |
-| **Local Authority**                            | `ORGANIZATION` | Responsible for children’s services delivery. Has unique `la_code`. |
-| **LA Children’s Social Care**                  | `SERVICE`      | Team within LA delivering social care services. |
-| **Children Within Social Care**                | `PERSON`       | Children receiving support from the CSC service. |
-| **ILACS Inspection Event**                     | `EVENT`        | Official Ofsted inspection of a local authority.<br/>Properties: `start_date`, `end_date`, `published_date` |
+| **Department for Education (DfE)**             | `ORGANIZATION` | UK government(body) overseeing children's services |
+| **Ofsted**                                     | `ORGANIZATION` | Inspectors for children’s services(CSC) in England |
+| **Local Authority**                            | `ORGANIZATION` | Responsible for children’s services delivery. Has unique `la_code` |
+| **LA Children’s Social Care**                  | `SERVICE`      | Team within LA delivering social care services |
+| **Children Within Social Care**                | `PERSON`       | Children receiving support from the CSC service |
+| **ILACS Inspection**                     | `EVENT`        | Official Ofsted inspection of a local authority.<br/>Properties: `start_date`, `end_date`, `published_date` |
 | **ILACS Judgement**                            | `OBSERVATION`  | Ofsted’s findings from an inspection.<br/>Properties: `judgement_type`, `judgement_grade` |
-| **ILACS Inspection Summary**                   | `STATE`        | Summary of findings for a specific ILACS inspection event. |
-| **All ILACS Summary**                          | `COLLECTION`   | Compilation of all ILACS inspection summaries.<br/>Properties: `generated_date`, `version` |
-| **ILACS Scraper Tool**                         | `METHOD`       | Python tool that extracts inspection summaries into a structured dataset. |
-| **London Innovation and Improvement Alliance (LIIA)** | `COMMUNITY` | Regional group using inspection data for strategic analysis. |
-| **LIIA Power BI Dashboards**                   | `FUNCTION`     | Dashboards built from the ILACS summary to inform regional decisions. |
-| **Local Authority Area**                       | `PLACE`        | Geographic area for each Local Authority. |
-| **Region in England**                          | `PLACE`        | Statistical region made up of multiple Local Authorities. |
+| **ILACS Inspection Summary**                   | `STATE`        | Summary of findings for a specific ILACS inspection event |
+| **All ILACS Summary**                          | `COLLECTION`   | Combined ILACS inspections summaries(All LAs).<br/>Properties: `generated_date`, `version` |
+| **ILACS Scraper Tool**                         | `METHOD`       | Python tool extracting inspection summaries(via Ofsted) into structured summary dataset |
+| **London Innovation and Improvement Alliance (LIIA)** | `COMMUNITY` | Regional group using inspection data for (strategic) analysis |
+| **LIIA Power BI Dashboards**                   | `FUNCTION`     | Dashboards built from the ILACS summary to inform regional |
+| **Local Authority Area**                       | `PLACE`        | Geographic/admin area for each Local Authority |
+| **Region in England**                          | `PLACE`        | Statistical/admin region made up of multiple Local Authorities |
 
 </details>
 
