@@ -6,6 +6,11 @@ project:
 
 sccm_alignment:
   entities:
+    - name: DepartmentForEducation
+      label: Department for Education (DfE)
+      description: Government department responsible for education and children's services in England
+      type: ORGANIZATION
+
     - name: Ofsted
       label: Ofsted
       description: The national inspectorate for children’s services and education in England
@@ -42,8 +47,8 @@ sccm_alignment:
       description: The outcome(s) recorded during an inspection (e.g. overall effectiveness)
       type: OBSERVATION
       properties:
-        - judgement_type  # e.g. 'Overall effectiveness', 'Leadership and management'
-        - judgement_grade # e.g. 'Outstanding', 'Requires Improvement'
+        - judgement_type
+        - judgement_grade
 
     - name: InspectionSummary
       label: ILACS Inspection Summary
@@ -68,6 +73,11 @@ sccm_alignment:
       description: A community of London local authorities that use Ofsted summaries for strategic insights
       type: COMMUNITY
 
+    - name: LIIADashboards
+      label: LIIA PowerBI Dashboard
+      description: A dashboard powered by AllInspectionsSummary to inform regional strategy and cross-LA/region performance monitoring
+      type: FUNCTION
+
     - name: Place
       label: Local Authority Area
       description: The geographic area served by a Local Authority
@@ -79,6 +89,10 @@ sccm_alignment:
       type: PLACE
 
   relationships:
+    - subject: DepartmentForEducation
+      predicate: oversees
+      object: Ofsted
+
     - subject: LocalAuthority
       predicate: is_located_in
       object: Place
@@ -112,16 +126,32 @@ sccm_alignment:
       object: ILACSObservation
 
     - subject: Ofsted_ILACS_Scrape_Tool
-      predicate: produces
-      object: AllInspectionsSummary
-
-    - subject: Ofsted_ILACS_Scrape_Tool
       predicate: extracts_from
       object: InspectionSummary
+
+    - subject: Ofsted_ILACS_Scrape_Tool
+      predicate: produces
+      object: AllInspectionsSummary
 
     - subject: LondonInnovationAndImprovementAlliance
       predicate: uses
       object: AllInspectionsSummary
+
+    - subject: AllInspectionsSummary
+      predicate: informs
+      object: LIIADashboards
+
+    - subject: LondonInnovationAndImprovementAlliance
+      predicate: operates
+      object: LIIADashboards
+
+    - subject: LondonInnovationAndImprovementAlliance
+      predicate: defines
+      object: Region
+
+    - subject: LondonInnovationAndImprovementAlliance
+      predicate: operates_in
+      object: Region
 
     - subject: LocalAuthority
       predicate: compares_with
@@ -130,7 +160,6 @@ sccm_alignment:
     - subject: LocalAuthority
       predicate: learns_from
       object: InspectionSummary
-
 
 
 data_layers:
@@ -219,3 +248,44 @@ metadata:
   related_projects:
     - https://data-to-insight.github.io/ofsted-send-scrape-tool/
     - https://data-to-insight.github.io/ofsted-jtai-scrape-tool/
+
+
+
+# --- SCCM Concept Type Reference (based on PAS 182) ---
+# Use the following as values for `type:` fields in sccm_alignment entities.
+
+# ITEM GROUPS
+# --------------------------------------------
+# AGENT         : PERSON or ORGANIZATION that provides services or acts in an EVENT 
+# ITEM          : discrete thing (can be physical or abstract)
+# ABSTRACT      : Non-physical ITEM (e.g. SERVICE, CASE, OBJECTIVE, RULE)
+# OBJECT        : physical ITEM (e.g. building, sensor, road)
+# COLLECTION    : grouping of ITEMs (e.g. dashboard, summary, dataset)
+
+# CONCEPT TYPES (Main concepts)
+# --------------------------------------------
+# PERSON        : An individual human being
+# ORGANIZATION  : group of persons with shared goal (e.g. LA, NHS Trust)
+# PLACE         : geographic position or region (e.g. LA area, postcode)
+# SERVICE       : The capability to carry out a function/method (e.g. social care)
+# EVENT         : Something that happens (e.g. inspection, application)
+# STATE         : condition or circumstance of an ITEM (e.g. judgement outcome)
+# OBSERVATION   : type of EVENT in which STATE is recorded (e.g. score, grade)
+# PLAN          : Steps with resources and times to reach target state
+# CASE          : container of EVENTs arising from SERVICE usage (e.g. care case)
+# METHOD        : defined procedure to carry out task (e.g. data scrape, triage)
+# OBJECTIVE     : desired outcome (e.g. improve housing, reduce risk)
+# TARGET        : desired future STATE
+# RESOURCE      : An ITEM used by an AGENT to deliver SERVICE (e.g. funding, people)
+# AGREEMENT     : An arrangement between AGENTs (e.g. contract, MOU)
+# ACCOUNT       : record of EVENTs related to an ITEM (e.g. care history)
+
+# OTHER USEFUL TYPES
+# --------------------------------------------
+# COMMUNITY     : group of PERSONs/ORGANIZATIONs sharing traits or goals (e.g. LIIA)
+# FUNCTION      : COLLECTION of SERVICEs grouped for purpose (e.g. child protection)
+# RULE          : regulation or constraint (e.g. legislation, eligibility)
+# DECISION      : conclusion reached by an AGENT
+# ASSUMPTION    : forecast or expected STATE used for planning
+
+# Note: These types are semantic labels — spelling must match exactly (e.g. ORGANIZATION not Organisation).

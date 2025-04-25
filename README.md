@@ -39,6 +39,58 @@ We're working to address these, these are:
 ## Smart City Concept Model (SCCM)
 The terminology and relations shown here might not be fully alligned with the SCCM standard(s), this is a work-in-progress.<br/>
 <img src="./sccm_graph_static.svg" alt="SCCM Graph" title="Smart City Concept Model Graph" width="100%"> <br/>  
+
+<details>
+<summary><strong>Key Entities</strong> (click to expand)</summary>
+
+| Entity Label                                    | Type         | Description |
+|------------------------------------------------|--------------|-------------|
+| **Department for Education (DfE)**             | `ORGANIZATION` | UK government body overseeing education and children's services. |
+| **Ofsted**                                     | `ORGANIZATION` | Inspectorate for education and children’s services in England. |
+| **Local Authority**                            | `ORGANIZATION` | Responsible for children’s services delivery. Has unique `la_code`. |
+| **LA Children’s Social Care**                  | `SERVICE`      | Team within LA delivering social care services. |
+| **Children Within Social Care**                | `PERSON`       | Children receiving support from the CSC service. |
+| **ILACS Inspection Event**                     | `EVENT`        | Official Ofsted inspection of a local authority.<br/>Properties: `start_date`, `end_date`, `published_date` |
+| **ILACS Judgement**                            | `OBSERVATION`  | Ofsted’s findings from an inspection.<br/>Properties: `judgement_type`, `judgement_grade` |
+| **ILACS Inspection Summary**                   | `STATE`        | Summary of findings for a specific ILACS inspection event. |
+| **All ILACS Summary**                          | `COLLECTION`   | Compilation of all ILACS inspection summaries.<br/>Properties: `generated_date`, `version` |
+| **ILACS Scraper Tool**                         | `METHOD`       | Python tool that extracts inspection summaries into a structured dataset. |
+| **London Innovation and Improvement Alliance (LIIA)** | `COMMUNITY` | Regional group using inspection data for strategic analysis. |
+| **LIIA Power BI Dashboards**                   | `FUNCTION`     | Dashboards built from the ILACS summary to inform regional decisions. |
+| **Local Authority Area**                       | `PLACE`        | Geographic area for each Local Authority. |
+| **Region in England**                          | `PLACE`        | Statistical region made up of multiple Local Authorities. |
+
+</details>
+
+---
+
+<details>
+<summary><strong>Key Relationships</strong> (click to expand)</summary>
+
+| Subject                          | Predicate         | Object                        |
+|----------------------------------|-------------------|-------------------------------|
+| `Department for Education`       | **oversees**      | `Ofsted`                      |
+| `Local Authority`                | **is_located_in** | `Local Authority Area`        |
+| `Local Authority Area`           | **is_part_of**    | `Region in England`           |
+| `Local Authority`                | **provides**      | `LA Children’s Social Care`   |
+| `LA Children’s Social Care`     | **serves**        | `Children Within Social Care` |
+| `Ofsted`                         | **performs**      | `ILACS Inspection Event`      |
+| `ILACS Inspection Event`         | **hasOutcome**    | `ILACS Inspection Summary`    |
+| `ILACS Inspection Summary`       | **stateOf**       | `LA Children’s Social Care`   |
+| `ILACS Inspection Event`         | **records**       | `ILACS Judgement`             |
+| `ILACS Scraper Tool`            | **extracts_from** | `ILACS Inspection Summary`    |
+| `ILACS Scraper Tool`            | **produces**      | `All ILACS Summary`           |
+| `LIIA`                           | **uses**          | `All ILACS Summary`           |
+| `All ILACS Summary`             | **informs**       | `LIIA Power BI Dashboards`    |
+| `LIIA`                           | **operates**      | `LIIA Power BI Dashboards`    |
+| `LIIA`                           | **defines**       | `Region in England`           |
+| `LIIA`                           | **operates_in**   | `Region in England`           |
+| `Local Authority`                | **compares_with** | `Local Authority`             |
+| `Local Authority`                | **learns_from**   | `ILACS Inspection Summary`    |
+
+</details>
+
+---
 References: [istanduk.org Initial SCCM Project](https://istanduk.org/projects/smart-cities-concept-model/) & [smartcityconceptmodel.com Smart Cities Concept Model](http://www.smartcityconceptmodel.com) <br/><br/><br/>  
 
 ## Imports(s)
