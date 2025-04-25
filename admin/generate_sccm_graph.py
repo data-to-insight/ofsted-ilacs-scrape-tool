@@ -53,9 +53,10 @@ for entity in entities:
 
 # Tool-specific semantic links
 tool_relationships = [
-    (project_name, "InspectionSummary", "produces"),
-    (project_name, "Ofsted", "analyses")
+    (project_name, "AllInspectionsSummary", "produces"),  # corrected predicate + target
+    (project_name, "InspectionSummary", "extracts_from")  # 
 ]
+
 
 for src, dst, label in tool_relationships:
     if dst in G.nodes:

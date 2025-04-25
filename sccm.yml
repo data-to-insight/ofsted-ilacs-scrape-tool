@@ -1,9 +1,8 @@
 project:
   name: Ofsted_ILACS_Scrape_Tool
   description: >
-    A Python-based extraction and observation method that scrapes ILACS reports
-    from Ofsted.gov.uk and summarises the resulting states of children’s social care
-    services for each local authority in England.
+    A Python tool that scrapes and processes Ofsted ILACS inspection reports to produce a summary dataset
+    for all local authorities in England. Enables regional and national insights for organisations like LIIA.
 
 sccm_alignment:
   entities:
@@ -16,6 +15,8 @@ sccm_alignment:
       label: Local Authority
       description: An administrative body responsible for the delivery of children’s services
       type: ORGANIZATION
+      properties:
+        - la_code
 
     - name: LocalAuthorityChildrensSocialCare
       label: LA Children’s Social Care
@@ -24,13 +25,48 @@ sccm_alignment:
 
     - name: ChildrenWithinSocialCare
       label: Children Within Social Care
-      description: Children who are the subject of a service delivery case
+      description: Children who are the subject of a CSC referral case
       type: PERSON
 
+    - name: ILACSInspectionEvent
+      label: ILACS Inspection Event
+      description: A specific Ofsted inspection of a local authority’s children’s services
+      type: EVENT
+      properties:
+        - start_date
+        - end_date
+        - published_date
+
+    - name: ILACSObservation
+      label: ILACS Judgement
+      description: The outcome(s) recorded during an inspection (e.g. overall effectiveness)
+      type: OBSERVATION
+      properties:
+        - judgement_type  # e.g. 'Overall effectiveness', 'Leadership and management'
+        - judgement_grade # e.g. 'Outstanding', 'Requires Improvement'
+
     - name: InspectionSummary
-      label: Ofsted Inspection Summary
-      description: A summarised evaluation of care quality, as judgements, based on individual ILACS inspections
+      label: ILACS Inspection Summary
+      description: The outcome (judgement and findings) of a specific ILACS inspection event
       type: STATE
+
+    - name: AllInspectionsSummary
+      label: All ILACS Summary
+      description: A compiled view of all ILACS inspection results, generated from published summaries
+      type: COLLECTION
+      properties:
+        - generated_date
+        - version
+
+    - name: Ofsted_ILACS_Scrape_Tool
+      label: ILACS Scraper Tool
+      description: A Python tool that extracts published Ofsted inspection summaries into a combined dataset
+      type: METHOD
+
+    - name: LondonInnovationAndImprovementAlliance
+      label: LIIA
+      description: A community of London local authorities that use Ofsted summaries for strategic insights
+      type: COMMUNITY
 
     - name: Place
       label: Local Authority Area
@@ -39,18 +75,8 @@ sccm_alignment:
 
     - name: Region
       label: Region in England
-      description: A broader administrative or statistical geography containing potentially multiple local authorities
+      description: A broader administrative or statistical geography containing multiple local authorities
       type: PLACE
-
-    - name: LondonInnovationAndImprovementAlliance
-      label: LIIA
-      description: London Innovation and Improvement Alliance, which uses inspection summaries for strategic insight
-      type: ORGANIZATION
-
-    - name: Ofsted_ILACS_Scrape_Tool
-      label: ILACS Scraper Tool
-      description: A tool that performs observations and extracts inspection summaries from published Ofsted reports
-      type: METHOD
 
   relationships:
     - subject: LocalAuthority
@@ -70,20 +96,32 @@ sccm_alignment:
       object: ChildrenWithinSocialCare
 
     - subject: Ofsted
-      predicate: inspects
-      object: LocalAuthorityChildrensSocialCare
+      predicate: performs
+      object: ILACSInspectionEvent
+
+    - subject: ILACSInspectionEvent
+      predicate: hasOutcome
+      object: InspectionSummary
 
     - subject: InspectionSummary
       predicate: stateOf
       object: LocalAuthorityChildrensSocialCare
 
-    - subject: Ofsted_ILACS_Scrape_Tool
+    - subject: ILACSInspectionEvent
       predicate: records
+      object: ILACSObservation
+
+    - subject: Ofsted_ILACS_Scrape_Tool
+      predicate: produces
+      object: AllInspectionsSummary
+
+    - subject: Ofsted_ILACS_Scrape_Tool
+      predicate: extracts_from
       object: InspectionSummary
 
-    - subject: LIIA
+    - subject: LondonInnovationAndImprovementAlliance
       predicate: uses
-      object: InspectionSummary
+      object: AllInspectionsSummary
 
     - subject: LocalAuthority
       predicate: compares_with
@@ -92,6 +130,8 @@ sccm_alignment:
     - subject: LocalAuthority
       predicate: learns_from
       object: InspectionSummary
+
+
 
 data_layers:
   operational:
