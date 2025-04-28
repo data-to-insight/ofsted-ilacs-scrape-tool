@@ -121,12 +121,8 @@ sccm_alignment:
       predicate: stateOf
       object: LocalAuthorityChildrensSocialCare
 
-    - subject: ILACSInspectionEvent
-      predicate: records
-      object: ILACSObservation
-
     - subject: ILACSInspectionSummary
-      predicate: results_in
+      predicate: contains
       object: ILACSObservation
       
     - subject: Ofsted_ILACS_Scrape_Tool
