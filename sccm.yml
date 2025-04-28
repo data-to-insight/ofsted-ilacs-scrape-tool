@@ -55,8 +55,8 @@ sccm_alignment:
       description: The outcome (judgement and findings) of a specific ILACS inspection event
       type: STATE
 
-    - name: AllInspectionsSummary
-      label: All ILACS Summary
+    - name: CombinedILACSInspectionsSummary
+      label: Combined ILACS Summary
       description: A compiled view of all ILACS inspection results, generated from published summaries
       type: COLLECTION
       properties:
@@ -75,7 +75,7 @@ sccm_alignment:
 
     - name: LIIADashboards
       label: LIIA PowerBI Dashboard
-      description: A dashboard powered by AllInspectionsSummary to inform regional strategy and cross-LA/region performance monitoring
+      description: A dashboard powered by CombinedILACSInspectionsSummary to inform regional strategy and cross-LA/region performance monitoring
       type: FUNCTION
 
     - name: Place
@@ -131,13 +131,13 @@ sccm_alignment:
 
     - subject: Ofsted_ILACS_Scrape_Tool
       predicate: produces
-      object: AllInspectionsSummary
+      object: CombinedILACSInspectionsSummary
 
     - subject: LondonInnovationAndImprovementAlliance
       predicate: uses
-      object: AllInspectionsSummary
+      object: CombinedILACSInspectionsSummary
 
-    - subject: AllInspectionsSummary
+    - subject: CombinedILACSInspectionsSummary
       predicate: informs
       object: LIIADashboards
 
