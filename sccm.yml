@@ -1,7 +1,6 @@
 project:
   name: Ofsted_ILACS_Scrape_Tool
   description: >
-    https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/tree/main
     A Python tool that scrapes and processes Ofsted ILACS inspection reports to produce a summary dataset
     for all local authorities in England. Enables regional and national insights for organisations like LIIA.
 
@@ -35,7 +34,7 @@ sccm_alignment:
       type: PERSON
 
     - name: ILACSInspectionEvent
-      label: ILACS Inspection Event
+      label: ILACS Inspection
       description: A specific Ofsted inspection of a local authority’s children’s services
       type: EVENT
       properties:
@@ -44,7 +43,7 @@ sccm_alignment:
         - published_date
 
     - name: ILACSObservation
-      label: ILACS Judgement
+      label: ILACS Judgements
       description: The outcome(s) recorded during an inspection (e.g. overall effectiveness)
       type: OBSERVATION
       properties:
@@ -65,7 +64,7 @@ sccm_alignment:
         - version
 
     - name: Ofsted_ILACS_Scrape_Tool
-      label: ILACS Scraper Tool
+      label: ILACS Scrape Tool
       description: A Python tool that extracts published Ofsted inspection summaries into a combined dataset
       type: METHOD
 
@@ -126,6 +125,10 @@ sccm_alignment:
       predicate: records
       object: ILACSObservation
 
+    - subject: ILACSInspectionSummary
+      predicate: results_in
+      object: ILACSObservation
+      
     - subject: Ofsted_ILACS_Scrape_Tool
       predicate: extracts_from
       object: ILACSInspectionSummary
