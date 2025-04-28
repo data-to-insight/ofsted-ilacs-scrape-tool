@@ -51,12 +51,12 @@ sccm_alignment:
         - judgement_grade
 
     - name: ILACSInspectionSummary
-      label: ILACS Inspection Summary
+      label: ILACS Report
       description: The outcome (judgement and findings) of a specific ILACS inspection event
       type: STATE
 
     - name: CombinedILACSInspectionsSummary
-      label: Combined ILACS Inspections Summary
+      label: ILACS Summary
       description: A compiled view of all ILACS inspection results, generated from published summaries for each LA
       type: COLLECTION
       properties:
