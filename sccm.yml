@@ -56,7 +56,7 @@ sccm_alignment:
       type: STATE
 
     - name: CombinedILACSInspectionsSummary
-      label: Combined ILACS Summary
+      label: Combined ILACS Inspections Summary
       description: A compiled view of all ILACS inspection results, generated from published summaries
       type: COLLECTION
       properties:
