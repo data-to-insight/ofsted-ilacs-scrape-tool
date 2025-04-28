@@ -50,7 +50,7 @@ sccm_alignment:
         - judgement_type
         - judgement_grade
 
-    - name: InspectionSummary
+    - name: ILACSInspectionSummary
       label: ILACS Inspection Summary
       description: The outcome (judgement and findings) of a specific ILACS inspection event
       type: STATE
@@ -115,9 +115,9 @@ sccm_alignment:
 
     - subject: ILACSInspectionEvent
       predicate: hasOutcome
-      object: InspectionSummary
+      object: ILACSInspectionSummary
 
-    - subject: InspectionSummary
+    - subject: ILACSInspectionSummary
       predicate: stateOf
       object: LocalAuthorityChildrensSocialCare
 
@@ -127,7 +127,7 @@ sccm_alignment:
 
     - subject: Ofsted_ILACS_Scrape_Tool
       predicate: extracts_from
-      object: InspectionSummary
+      object: ILACSInspectionSummary
 
     - subject: Ofsted_ILACS_Scrape_Tool
       predicate: produces
@@ -159,7 +159,7 @@ sccm_alignment:
 
     - subject: LocalAuthority
       predicate: learns_from
-      object: InspectionSummary
+      object: ILACSInspectionSummary
 
 
 data_layers:
