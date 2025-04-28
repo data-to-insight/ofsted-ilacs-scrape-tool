@@ -1,6 +1,7 @@
 project:
   name: Ofsted_ILACS_Scrape_Tool
-  description: >https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/tree/main
+  description: >
+    https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/tree/main
     A Python tool that scrapes and processes Ofsted ILACS inspection reports to produce a summary dataset
     for all local authorities in England. Enables regional and national insights for organisations like LIIA.
 
