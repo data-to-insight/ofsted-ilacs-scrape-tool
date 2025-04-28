@@ -7,7 +7,7 @@ project:
 sccm_alignment:
   entities:
     - name: DepartmentForEducation
-      label: Department for Education (DfE)
+      label: DfE
       description: Government department responsible for education and children's services in England
       type: ORGANIZATION
 
