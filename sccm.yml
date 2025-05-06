@@ -5,8 +5,9 @@ project:
     for all local authorities in England. Enables regional and national insights for organisations like LIIA.
   managed_by:
     - DatatoInsight
-  stakeholders: []
-  
+  stakeholders:
+    - LondonInnovationAndImprovementAlliance
+    
 sccm_alignment:
   entities:
     - name: DepartmentForEducation
