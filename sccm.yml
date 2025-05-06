@@ -3,7 +3,10 @@ project:
   description: >
     A Python tool that scrapes and processes Ofsted ILACS inspection reports to produce a summary dataset
     for all local authorities in England. Enables regional and national insights for organisations like LIIA.
-
+  managed_by:
+    - DatatoInsight
+  stakeholders: []
+  
 sccm_alignment:
   entities:
     - name: DepartmentForEducation
