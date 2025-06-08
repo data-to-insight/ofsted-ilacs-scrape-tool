@@ -95,7 +95,7 @@ sccm_alignment:
   relationships:
     - subject: DepartmentForEducation
       predicate: oversees
-      object: Ofsted
+      object: LocalAuthority
 
     - subject: LocalAuthority
       predicate: is_located_in
