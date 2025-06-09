@@ -13,17 +13,17 @@ sccm_alignment:
     - name: DepartmentForEducation
       label: DfE
       description: Government department responsible for education and children's services in England
-      type: ORGANIZATION
+      type: ORGANISATION
 
     - name: Ofsted
       label: Ofsted
       description: The national inspectorate for children’s services and education in England
-      type: ORGANIZATION
+      type: ORGANISATION
 
     - name: LocalAuthority
       label: Local Authority
       description: An administrative body responsible for the delivery of children’s services
-      type: ORGANIZATION
+      type: ORGANISATION
       properties:
         - la_code
 
@@ -260,7 +260,7 @@ metadata:
 
 # ITEM GROUPS
 # --------------------------------------------
-# AGENT         : PERSON or ORGANIZATION that provides services or acts in an EVENT 
+# AGENT         : PERSON or ORGANISATION that provides services or acts in an EVENT 
 # ITEM          : discrete thing (can be physical or abstract)
 # ABSTRACT      : Non-physical ITEM (e.g. SERVICE, CASE, OBJECTIVE, RULE)
 # OBJECT        : physical ITEM (e.g. building, sensor, road)
@@ -269,7 +269,7 @@ metadata:
 # CONCEPT TYPES (Main concepts)
 # --------------------------------------------
 # PERSON        : An individual human being
-# ORGANIZATION  : group of persons with shared goal (e.g. LA, NHS Trust)
+# ORGANISATION  : group of persons with shared goal (e.g. LA, NHS Trust)
 # PLACE         : geographic position or region (e.g. LA area, postcode)
 # SERVICE       : The capability to carry out a function/method (e.g. social care)
 # EVENT         : Something that happens (e.g. inspection, application)
@@ -286,10 +286,10 @@ metadata:
 
 # OTHER USEFUL TYPES
 # --------------------------------------------
-# COMMUNITY     : group of PERSONs/ORGANIZATIONs sharing traits or goals (e.g. LIIA)
+# COMMUNITY     : group of PERSONs/ORGANISATIONs sharing traits or goals (e.g. LIIA)
 # FUNCTION      : COLLECTION of SERVICEs grouped for purpose (e.g. child protection)
 # RULE          : regulation or constraint (e.g. legislation, eligibility)
 # DECISION      : conclusion reached by an AGENT
 # ASSUMPTION    : forecast or expected STATE used for planning
 
-# Note: These types are semantic labels — spelling must match exactly (e.g. ORGANIZATION not Organisation).
+# Note: These types are semantic labels — spelling must match exactly.
