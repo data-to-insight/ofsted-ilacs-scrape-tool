@@ -76,6 +76,16 @@ from datetime import datetime, timedelta # timedelta enables server time adjustm
 import json
 import git # possible case for just: from git import Repo (needed also for git actions workflow)
 import time
+import random # added for jitter
+
+
+# session browser headers (global)
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/114.0.0.0 Safari/537.36'
+})
 
 ## Note: 
 ## sentiment analysis needing further work/on hold and related processing blocks also commented
@@ -155,43 +165,50 @@ except git.exc.NoSuchPathError:
 #
 # Function defs
 
-def get_soup(url, retries=3, delay=5):
+
+def get_soup(url, retries=3, base_delay=5):
     """
-    Given a URL, returns a BeautifulSoup object + request error handling
+    Fetch and parse HTML with BeautifulSoup, incl session reuse,
+    browser-like headers, and  backoff retry strategy
+
     Args:
-        url (str):      The URL to fetch and parse
-        retries (int):  Number of retries on network errors
-        delay (int):    Delay between retries in seconds
+        url (str): fetch URL 
+        retries (int): max retry attempts
+        base_delay (int): delay in secs before retry
+
     Returns:
-        BeautifulSoup: The parsed HTML content, or None if an error occurs
+        BeautifulSoup or None
     """
-    timeout_seconds = 10  # lets not assume the Ofsted page is up, avoid over-pinging
+    timeout_seconds = 10 # lets not assume the Ofsted page is up, avoid over-pinging
 
     for attempt in range(retries):
         try:
-            response = requests.get(url, timeout=timeout_seconds)
-            response.raise_for_status()  # any HTTP errors?
-            soup = BeautifulSoup(response.content, 'html.parser')
-            return soup
+            response = session.get(url, timeout=timeout_seconds)
+            response.raise_for_status() # any HTTP errors?
+            return BeautifulSoup(response.content, 'html.parser')
+
         except requests.Timeout:
-            print(f"Timeout getting URL '{url}' on attempt {attempt + 1}. Retrying after {delay} secs...")
-            time.sleep(delay)
+            print(f"[Timeout] Attempt {attempt + 1}: {url}")
         except requests.HTTPError as e:
-            print(f"HTTP error getting URL '{url}': {e}")
-            return None  # end retries on client and server errors
+            print(f"[HTTP error] {e}") # end retries on client and server errors
+            return None
         except RequestException as e:
-            print(f"Request error getting URL '{url}': {e}")
-            if attempt < retries - 1:
-                print(f"Retrying after {delay} secs...")
-                time.sleep(delay) # pause to assist not getting blocked
-            else:
-                print("Max rtry attempts reached, giving up")
-                return None
+            print(f"[Request error] {e}")
         except Exception as e:
-            print(f"Unexpected error occurred: {e}")
+            print(f"[Unexpected error] {e}")
             return None
 
-    return None  # All the retries failed / stop point
+        if attempt < retries - 1:
+            # exponential backoff + jitter
+		    # to assist not getting blocked
+            delay = (base_delay * (2 ** attempt)) + random.uniform(0, 2)
+            print(f"Retrying in {delay:.1f}s...")
+            time.sleep(delay)
+
+    print("Max retry attempts reached.")
+	# retries failed / stop point
+    return None
+
 
 
 def clean_provider_name(name):
