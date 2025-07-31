@@ -1746,6 +1746,7 @@ ilacs_inspection_summary_df['inspectors_inspections_count'] = pd.to_numeric(ilac
 
 # EXCEL Output
 # Also define the active hyperlink col if exporting to Excel
+# there are 2 hyperlink columns, one for the local link to all inspections and one for the web source inspection link
 save_data_update(ilacs_inspection_summary_df, export_summary_filename, file_type=export_file_type, hyperlink_column='local_link_to_all_inspections')
 
 

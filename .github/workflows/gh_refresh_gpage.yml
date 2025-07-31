@@ -55,9 +55,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add index.html
+          git add index.html ofsted_csc_ilacs_overview.xlsx
           git commit -m "Update index.html via workflow" || echo "No changes to commit"
           git push
+
 
   deploy:
     runs-on: ubuntu-latest
