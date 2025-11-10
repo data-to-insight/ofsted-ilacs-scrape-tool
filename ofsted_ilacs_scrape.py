@@ -61,31 +61,38 @@ max_results = 160  # expecting 153 @110225
 
 #
 # Script admin settings
-
-# Non-standard mods
-import os # also used in git actions workflow
+# Standard library
+import os
 import io
-import requests
-from requests.exceptions import RequestException #  HTTP requests excep' class
+import re
+import json
+import time
+import random
+import logging
+import warnings
+from datetime import datetime, timedelta
 
+# Third party
+import requests
+from requests.exceptions import RequestException, Timeout, HTTPError
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-import re       
-from datetime import datetime, timedelta # timedelta enables server time adjustment
-import json
-import git # possible case for just: from git import Repo (needed also for git actions workflow)
-import time
-import random # added for jitter
+import git
+import tabula               # table extraction from PDF, needs Java
+import PyPDF2               # PDF text extraction
+try:
+    import xlsxwriter       # Excel export
+except ModuleNotFoundError:
+    print("Please install 'xlsxwriter' using pip")
 
 
-# session browser headers (global)
-session = requests.Session()
-session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                  'AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/114.0.0.0 Safari/537.36'
-})
+# -- removed -- 101125
+# PyMuPDF, depreciated use
+# textblob, nltk, scikit learn, gensim, only referenced in commented sections
+# jinja2, pyyaml, networkx, pydot, depreciated use
+# unused RequestException only import replaced with explicit exceptions, RequestException kept
+
 
 ## Note: 
 ## sentiment analysis needing further work/on hold and related processing blocks also commented
@@ -101,36 +108,23 @@ session.headers.update({
 #     from gensim import corpora, models
 #     # sh "/Applications/Python 3.11/Install Certificates.command"
 # except ModuleNotFoundError:
-#     print("Please install 'textblob' and 'gensim' using pip")
+#     print("install 'textblob' and 'gensim' using pip")
 
 # #sentiment
 # try:
 #     from sklearn.metrics.pairwise import cosine_similarity
 #     from sklearn.feature_extraction.text import CountVectorizer
 # except ModuleNotFoundError:
-#     print("Please install 'scikit-learn' using pip")
+#     print("install 'scikit-learn' using pip")
 
 
-# pdf search/data extraction
-try:
-    import tabula  # uses Java to extract tables from PDF
-    import PyPDF2 # depreciated 090225 - need to swap back to pypdf! 
-except ModuleNotFoundError as e:
-    print(f"Module not found: {e}. Please install the required packages(tabula-py|PyPDF2).")
-    import sys
-    sys.exit(1)
-
-
-# handle optional excel export+active file links
-try:
-    import xlsxwriter
-except ModuleNotFoundError:
-    print("Please install 'openpyxl' and 'xlsxwriter' using pip")
-
-
-# Configure logging/logging module
-import warnings
-import logging
+# session browser headers (global)
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/114.0.0.0 Safari/537.36'
+})
 
 # wipe / reset the logging file 
 with open('output.log', 'w'):

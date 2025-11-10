@@ -1,22 +1,9 @@
-tabula-py
-textblob
-nltk
-xlsxwriter
-PyMuPDF
-PyPDF2
-requests
-beautifulsoup4
-GitPython
-jinja2==3.1.2
-pyyaml
-networkx
-pydot
-
-
-# 080424 RH
-# Latest scipy version not compatible due to : scipy.linalg functions tri, triu & tril are deprecated and will be removed in SciPy 1.13.
-# Causes: ImportError: cannot import name 'triu' from 'scipy.linalg'. Hence fix to prev working version until can revisit/switch libraries in use to numpy ones. 
-# scipy
-# scipy==1.10.1 
-scipy==1.15.2
+pandas>=2.2,<3.0
+numpy>=1.26
+requests>=2.31
+beautifulsoup4>=4.12
+GitPython>=3.1
+tabula-py>=2.9
+PyPDF2>=3.0
+xlsxwriter>=3.1
 
