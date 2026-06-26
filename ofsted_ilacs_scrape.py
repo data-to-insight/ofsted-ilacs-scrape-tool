@@ -1187,10 +1187,10 @@ def save_to_html(data, column_order, local_link_column=None, web_link_column=Non
     page_title = "Ofsted ILACS Summary"
 
     intro_text = f"""
-    Summarised outcomes of published short and standard ILACS inspection reports by Ofsted, refreshed daily.<br/>
+    Summarised outcomes of published short and standard ILACS inspection reports by Ofsted, refreshed weekly.<br/>
     An expanded version of the shown summary sheet, refreshed concurrently, is available to
     <a href="{export_summary_filename}.xlsx">download here</a> as an .xlsx file.
-    <br/>Data summary is based on the original <i>ILACS Outcomes Summary</i> published periodically by the ADCS:
+    <br/>Data summary is based on the original <i>ILACS Outcomes Summary</i> published periodically(semiannually/Biannually) by the ADCS/Ofsted:
     <a href="https://adcs.org.uk/inspection/article/ilacs-outcomes-summary">https://adcs.org.uk/inspection/article/ilacs-outcomes-summary</a>.
     <a href="https://github.com/data-to-insight/ofsted-ilacs-scrape-tool/blob/main/README.md">Read the tool/project background details and future work.</a>.<br/>
     Exploratory efforts towards alligning this tools context with <a href="https://www.smartcityconceptmodel.com">Smart Cities Concept Model (SCCM)</a> : <a href="{sccm_graph_path}" target="_blank">viewable here</a>.
