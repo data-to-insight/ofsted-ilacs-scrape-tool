@@ -86,6 +86,12 @@ try:
 except ModuleNotFoundError:
     print("Please install 'xlsxwriter' using pip")
 
+# debug (incl Specific diag for problem Ofsted docs)
+import traceback
+from urllib.parse import urljoin
+from urllib.parse import urlsplit
+from io import BytesIO
+    
 
 # -- removed -- 101125
 # PyMuPDF, depreciated use
@@ -501,12 +507,12 @@ def fix_misalligned_judgement_table(df):
 
 
 
-def extract_inspection_data_update(pdf_content):
+def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=False):
     """
-    Function to extract key details from inspection reports PDF.
+    Function to extract key details from inspection reports PDF
 
     Args:
-        pdf_content (bytes): The raw content of the PDF file to be processed. 
+        pdf_content (bytes): The raw content of the PDF file to be processed
 
     Returns:
         dict: A dictionary containing the extracted details. The dictionary keys are as follows:
@@ -732,6 +738,120 @@ def extract_inspection_data_update(pdf_content):
 
     # Get judgement-grades as dict
     inspection_grades_dict = dict(zip(df['judgement'], df['grade']))
+
+
+    # From April 2026, no overall effectiveness judgement issued
+    # Retain existing extraction behaviour for older inspections
+
+    overall_grade_change_date = parse_date(
+        "01 April 2026", "%d %B %Y"
+    )
+
+    if (
+        start_date_formatted is not None
+        and start_date_formatted >= overall_grade_change_date
+    ):
+        inspection_grades_dict['overall_effectiveness'] = 'not_judged'
+
+        # Validate remaining 4 judgements
+        required_grades = [
+            'impact_of_leaders',
+            'help_and_protection',
+            'in_care',
+            'care_leavers'
+        ]
+
+        invalid_grades = [
+            key for key in required_grades
+            if str(inspection_grades_dict.get(key, '')).strip().lower()
+            in ('', 'nan', 'data_unreadable', 'none')
+        ]
+
+        if invalid_grades:
+            raise ValueError(
+                f"Missing or unreadable inspection grades: {invalid_grades}"
+            )
+        
+# ============================================================
+# PDF EXTRACTION DIAGNOSTICS
+# Enable via debug_pdf=True
+# Generic diagnostic output for inspecting problematic PDFs
+# ============================================================
+
+if debug_pdf:
+
+    print("\n========== PDF EXTRACTION DIAGNOSTICS ==========")
+    print(f"Source PDF: {source_pdf_url or 'Not supplied'}")
+    print(f"Inspection start date: {start_date_formatted}")
+
+    # PDF text extraction
+    print("\n--- FIRST PAGE TEXT ---")
+    print((first_page_text or '')[:2500])
+
+    # Raw tables returned by Tabula
+    print("\n--- TABULA EXTRACTED TABLES ---")
+    print(f"Tables found: {len(tables)}")
+
+    for i, table in enumerate(tables, start=1):
+        print(f"\nTable {i}:")
+        print(table.to_string(index=False))
+
+    # Final DataFrame after existing cleaning functions
+    print("\n--- PROCESSED JUDGEMENT DATAFRAME ---")
+    print(df.to_string(index=False))
+
+    # Extracted grades
+    print("\n--- EXTRACTED GRADES DICTIONARY ---")
+
+    for key, value in inspection_grades_dict.items():
+        print(f"  {key}: {value}")
+
+    print("\n========== END PDF DIAGNOSTICS ==========\n")
+
+
+    # ============================================================
+    # FRAMEWORK HANDLING: APRIL 2026 ONWARDS
+    # No overall effectiveness judgement from this date
+    # Runs regardless of debug_pdf setting
+    # ============================================================
+
+    overall_grade_change_date = parse_date(
+        "01 April 2026", "%d %B %Y"
+    )
+
+    if (
+        start_date_formatted is not None
+        and start_date_formatted >= overall_grade_change_date
+    ):
+
+        # Overall effectiveness no longer judged
+        inspection_grades_dict['overall_effectiveness'] = 'not_judged'
+
+        # Validate 4 remaining judgements
+        expected_grades = [
+            'impact_of_leaders',
+            'help_and_protection',
+            'in_care',
+            'care_leavers'
+        ]
+
+        missing_or_unreadable = [
+            key for key in expected_grades
+            if str(inspection_grades_dict.get(key, '')).strip().lower()
+            in ('', 'none', 'nan', 'data_unreadable')
+        ]
+
+        if missing_or_unreadable:
+            raise ValueError(
+                f"PDF {source_pdf_url or 'unknown'}: "
+                f"Missing or unreadable grades: {missing_or_unreadable}"
+            )
+
+        if debug_pdf:
+            print("Framework validation: PASSED")
+            print("Four inspection judgements validated")
+            print("Overall effectiveness: not_judged")
+
     
     # Ensure not yet introduced judgement is consistent pre-introduction
     # new care_leavers judgement introduction date (1st January 2023)
@@ -772,7 +892,7 @@ def extract_inspection_data_update(pdf_content):
 
 
 
-def process_provider_links(provider_links):
+def process_provider_links(provider_links, debug_pdf=False, test_pdf_url=None):
     """
     Processes provider links and returns a list of dictionaries containing URN, local authority, and inspection link.
 
@@ -790,7 +910,7 @@ def process_provider_links(provider_links):
 
 
     for link in provider_links:
-        # Extract the URN and provider name from the web link shown
+        # Extract URN (as str) and provider name from web link
         urn = link['href'].rsplit('/', 1)[-1]
         la_name_str = clean_provider_name(link.text.strip())
 
@@ -819,21 +939,86 @@ def process_provider_links(provider_links):
             # This block obv relies on Ofsted continued use of nonvisual element descriptors
             # containing the type(s) of inspection text. We use  "children's services inspection"
 
-            nonvisual_text = pdf_link.select_one('span.nonvisual').text.lower().strip()
+            # Stop after first successfully processed inspection
+            if found_inspection_link:
+                break
 
-            # For now at least, web page search terms hard-coded. 
-            if 'children' in nonvisual_text and 'services' in nonvisual_text and 'inspection' in nonvisual_text:
+            nonvisual_span = pdf_link.select_one('span.nonvisual')
 
-                # Create the filename and download the PDF (this filetype needs to be hard-coded here)
-                filename = nonvisual_text.replace(', pdf', '') + '.pdf'
+            if nonvisual_span is None:
+                continue
 
+            nonvisual_text = nonvisual_span.text.lower().strip()
 
-                # # Turn this OFF to minimise data 
-                # # Download and stores locally each relevant PDF! 
-                pdf_content = requests.get(pdf_link['href']).content
-                # with open(os.path.join(provider_dir, filename), 'wb') as f:
-                #     f.write(pdf_content)
-                # ## END data reduction
+            if (
+                'children' in nonvisual_text
+                and 'services' in nonvisual_text
+                and 'inspection' in nonvisual_text
+            ):
+
+                # Construct full PDF URL
+                pdf_url = urljoin(child_url, pdf_link['href'])
+
+                # Optional exact document filter
+                if test_pdf_url is not None and pdf_url != test_pdf_url:
+                    continue
+
+                # Normalise filename extensions
+                filename = re.sub(
+                    r'(?:\s*,\s*pdf|\.pdf)+\s*$',
+                    '',
+                    nonvisual_text,
+                    flags=re.IGNORECASE
+                ).strip() + '.pdf'
+
+                # Download PDF
+                try:
+                    response = requests.get(pdf_url, timeout=30)
+
+                    pdf_content = response.content
+
+                    if debug_pdf:
+                        print("\n========== PDF DIAGNOSTICS ==========")
+                        print(f"URN:          {urn}")
+                        print(f"Provider:     {la_name_str}")
+                        print(f"PDF URL:      {pdf_url}")
+                        print(f"Final URL:    {response.url}")
+                        print(f"Status:       {response.status_code}")
+                        print(f"Content type: {response.headers.get('Content-Type')}")
+                        print(f"Content size: {len(pdf_content):,} bytes")
+                        print(f"First bytes:  {pdf_content[:40]!r}")
+                        print(f"Filename:     {filename}")
+
+                        # Save raw response for local inspection
+                        debug_path = os.path.join(provider_dir, filename)
+
+                        with open(debug_path, 'wb') as f:
+                            f.write(pdf_content)
+
+                        print(f"Saved to:     {debug_path}")
+
+                    response.raise_for_status()
+
+                    # Check response contains a PDF header
+                    if not pdf_content.lstrip().startswith(b'%PDF-'):
+                        print(f"WARNING: Response does not begin with a PDF header: {pdf_url}")
+
+                        if debug_pdf:
+                            print(f"Response preview: {pdf_content[:200]!r}")
+
+                        continue
+
+                    if debug_pdf:
+                        print("PDF signature: VALID")
+
+                except requests.RequestException as exc:
+                    print(f"PDF DOWNLOAD ERROR: {pdf_url}")
+                    print(f"Reason: {exc}")
+
+                    if debug_pdf:
+                        traceback.print_exc()
+
+                    continue
 
 
 
@@ -859,8 +1044,61 @@ def process_provider_links(provider_links):
                
                         # Scrape inside the pdf inspection reports
                         # inspection_data_dict = extract_inspection_data(pdf_content)
-                        inspection_data_dict = extract_inspection_data_update(pdf_content)
-                    
+
+                        # DEBUG: Inspection document extraction
+                        try:
+
+                            if debug_pdf:
+                                print("\n========== EXTRACTION TEST ==========")
+                                print(f"URN: {urn}")
+                                print(f"Provider: {la_name_str}")
+                                print(f"PDF URL: {pdf_url}")
+                                print(f"Attempting extraction...")
+
+                            inspection_data_dict = extract_inspection_data_update(
+                                pdf_content,
+                                source_pdf_url=pdf_url,
+                                debug_pdf=debug_pdf
+                            )
+
+                            # Optional diag output
+                            if debug_pdf:
+
+                                print("\nextracted fields:")
+
+                                if isinstance(inspection_data_dict, dict):
+                                    for key, value in inspection_data_dict.items():
+                                        print(f"  {key}: {value}")
+                                else:
+                                    print(
+                                        f"unexpected extraction result type: "
+                                        f"{type(inspection_data_dict).__name__}"
+                                    )
+
+                                print("========== END EXTRACTION TEST ==========\n")
+
+                        except Exception as exc:
+
+                            logging.exception(
+                                "Failed extract inspection for URN %s, PDF %s",
+                                urn,
+                                pdf_url
+                            )
+
+                            if debug_pdf:
+                                print("\n========== EXTRACTION FAILED ==========")
+                                print(f"URN: {urn}")
+                                print(f"PDF: {pdf_url}")
+                                print(f"Exception type: {type(exc).__name__}")
+                                print(f"Exception message: {exc}")
+                                print("========== END EXTRACTION TEST ==========\n")
+
+                            # Stop processing inspection PDFs for this LA
+                            # Stop silently substituting older/last valid report
+                            break
+
+
+
 
                         # Dict extract here for readability of returned data/onward
 
@@ -896,9 +1134,13 @@ def process_provider_links(provider_links):
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
                         # # TESTING  #DEBUG #sentiment
-                        # print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
+                        if urn == "80475": # as Str type
+                            print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
-                        print(f"{local_authority}") # Gives listing console output during run in the format 'data/inspection reports/urn name_of_la'
+                        # console progress output by LA
+                        print(f"{local_authority}") # 'data/inspection reports/urn name_of_la'
+
+                        
 
                         data.append({
                                         'urn': urn,
@@ -930,7 +1172,8 @@ def process_provider_links(provider_links):
                         data.append({'urn': urn, 'local_authority': local_authority, 'inspection_link': inspection_link})
 
                     
-                    found_inspection_link = True # Flag to ensure data reporting on only the most recent inspection
+                    found_inspection_link = True # Flag to ensure data reporting on only most recent inspection
+                    # break # toggle on IF ensures remaining historical reports not needed once selected inspection handled
     return data
 
 
@@ -1566,31 +1809,77 @@ def plot_filtered_topics(filtered_topics):
 #
 
 
+# TEST CONFIG
+# Set here to run diag output on specific LA URN and/or url link
+
+# Set TEST_URN = None == run normally across all LAs
+TEST_URN = None # e.g. (specific URN) "80475" | None
+
+# Opt: specify exact PDF URL if needed
+# Leave None to process LAs latest matching inspection
+TEST_PDF_URL = None
+
+# Ensure in-document extraction enabled
+pdf_data_capture = True
+
+
 while start < max_results:
+
     # Construct URL for current chunk
     url = url_stem + search_url + pagination_param.format(start=start)
 
-    print(f"Fetching: {url}")  # Debug output
+    print(f"Fetching: {url}")
 
-    # Fetch and parse search page
     soup = get_soup(url)
 
     if soup is None:
-        print("⚠️ ERROR: No content retrieved, stopping.")
+        print("ERROR: No content retrieved, stopping")
         break
 
     # Find provider links
-    provider_links = soup.find_all('a', href=lambda href: href and '/provider/' in href)
+    provider_links = soup.find_all(
+        'a',
+        href=lambda href: href and '/provider/' in href
+    )
 
-    print(f"🔍 DEBUG: Found {len(provider_links)} provider links on page {start}-{start + max_page_results}")
+    print(
+        f"DEBUG: Found {len(provider_links)} provider links "
+        f"on page {start}-{start + max_page_results}"
+    )
 
     if not provider_links:
-        break  # no more results found
+        break
 
-    # provider links
-    data.extend(process_provider_links(provider_links))
+    # SINGLE PROVIDER TEST MODE
+    if TEST_URN is not None:
 
-    # continue on next batch (if there is)
+        provider_links = [
+            link for link in provider_links
+            if link['href'].rstrip('/').rsplit('/', 1)[-1] == str(TEST_URN)
+        ]
+
+        # Keep searching til target URN found
+        if not provider_links:
+            start += max_page_results
+            continue
+
+        print(f"\nTEST MODE: Found target URN {TEST_URN}")
+
+    # Process selected provider(s)
+    data.extend(
+        process_provider_links(
+            provider_links,
+            debug_pdf=(TEST_URN is not None),
+            test_pdf_url=TEST_PDF_URL
+        )
+    )
+
+    # Once test provider processed stop
+    if TEST_URN is not None:
+        print("\nTEST MODE: Processing complete")
+        break
+
+    # Normal pagination
     start += max_page_results
 
 
