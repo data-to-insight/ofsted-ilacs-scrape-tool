@@ -590,7 +590,12 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
         # Read the PDF and extract the table on the first page
         try:
             buffer.seek(0)  # Reset the buffer position to the beginning
-            tables = tabula.read_pdf(buffer, pages=1, multiple_tables=True)
+            tables = tabula.read_pdf(
+                buffer,
+                pages=1,
+                multiple_tables=True,
+                force_subprocess=True # avoid JPype errors, & unnecessary attempt to import JPype
+            )
         except Exception as e:
             print(f"An error occurred while reading the PDF: {e}")
             tables = []
@@ -726,14 +731,6 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
         # handle just in-case we have a column naming mis-match 
         if column in df.columns:
             df[column] = df[column].replace({r'\b(be good\w*)\b': 'requires improvement', '(?i)nan': 'data_unreadable'}, regex=True)
-        else:
-            # [TESTING]
-            # print(f"Column '{column}' not found in the DataFrame.")
-            # print(df.columns)
-
-            # Log the column names instead of printing
-            logging.warning(f"Inspection date {start_date_formatted} / Column '{column}' not found in the DataFrame.")
-            logging.info(df.columns)
 
 
     # Get judgement-grades as dict
@@ -779,8 +776,7 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
 
     # ============================================================
     # FRAMEWORK HANDLING: APRIL 2026 ONWARDS
-    # Overall effectiveness no longer judged
-    # Runs regardless of debug_pdf setting
+    # Includes fallback for unreadable Tabula judgement tables
     # ============================================================
 
     overall_grade_change_date = parse_date(
@@ -792,10 +788,8 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
         and start_date_formatted >= overall_grade_change_date
     ):
 
-        # Overall effectiveness no longer judged
         inspection_grades_dict['overall_effectiveness'] = 'not_judged'
 
-        # Validate four remaining judgements
         expected_grades = [
             'impact_of_leaders',
             'help_and_protection',
@@ -803,10 +797,74 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
             'care_leavers'
         ]
 
+        invalid_values = ('', 'none', 'nan', 'data_unreadable')
+
+        # Identify grades Tabula failed to extract
+        missing_grades = [
+            key for key in expected_grades
+            if str(inspection_grades_dict.get(key, '')).strip().lower()
+            in invalid_values
+        ]
+
+        # FALLBACK: Only run if Tabula extraction was incomplete
+        if missing_grades:
+
+            if debug_pdf:
+                print("\nTabula extraction incomplete")
+                print(f"Attempting text fallback: {missing_grades}")
+
+            # Normalise whitespace in extracted first-page text
+            text = re.sub(
+                r'\s+', ' ', first_page_text or ''
+            ).strip()
+
+            # Known judgement labels from Ofsted reports
+            judgement_labels = {
+                'impact_of_leaders':
+                    'The impact of leaders on social work practice with children and families',
+
+                'help_and_protection':
+                    'The experiences and progress of children who need help and protection',
+
+                'in_care':
+                    'The experiences and progress of children in care',
+
+                'care_leavers':
+                    'The experiences and progress of care leavers'
+            }
+
+            # Extract grades directly from readable text
+            grade_pattern = (
+                r'(outstanding|good|requires\s+improvement'
+                r'(?:\s+to\s+be\s+good)?|inadequate)'
+            )
+
+            for key in missing_grades:
+
+                label = judgement_labels[key]
+
+                match = re.search(
+                    rf'{re.escape(label)}\s+{grade_pattern}\b',
+                    text,
+                    flags=re.IGNORECASE
+                )
+
+                if match:
+                    recovered_grade = re.sub(
+                        r'\s+', ' ', match.group(1)
+                    ).strip().lower()
+
+                    inspection_grades_dict[key] = recovered_grade
+
+                    if debug_pdf:
+                        print(f"Recovered {key}: {recovered_grade}")
+
+        # FINAL VALIDATION
+        # Recheck all grades after any fallback attempts
         missing_or_unreadable = [
             key for key in expected_grades
             if str(inspection_grades_dict.get(key, '')).strip().lower()
-            in ('', 'none', 'nan', 'data_unreadable')
+            in invalid_values
         ]
 
         if missing_or_unreadable:
@@ -816,10 +874,9 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
             )
 
         if debug_pdf:
-            print("Framework validation: PASSED")
-            print("Four inspection judgements validated")
+            print("\nFramework validation: PASSED")
             print("Overall effectiveness: not_judged")
-
+            print("Four inspection judgements validated")
             
     
     # Ensure not yet introduced judgement is consistent pre-introduction
@@ -1102,9 +1159,9 @@ def process_provider_links(provider_links, debug_pdf=False, test_pdf_url=None):
                         
                         provider_dir_link = provider_dir_link.replace('/', '\\') # fix for Windows systems
                         
-                        # # TESTING  #DEBUG #sentiment
-                        if urn == "80475": # as Str type
-                            print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
+                        # # # TESTING  #DEBUG #sentiment
+                        # if urn == "80475": # as Str type
+                        #     print(f"{la_name_str}, {overall_effectiveness},{impact_of_leaders_grade}, {help_and_protection_grade}, {in_care_grade}, {care_leavers_grade}, {inspection_start_date_formatted}")
 
                         # console progress output by LA
                         print(f"{local_authority}") # 'data/inspection reports/urn name_of_la'
@@ -1782,7 +1839,7 @@ def plot_filtered_topics(filtered_topics):
 # Set here to run diag output on specific LA URN and/or url link
 
 # Set TEST_URN = None == run normally across all LAs
-TEST_URN = None # e.g. (specific URN) "80475" | None
+TEST_URN = None # e.g. (specific URN) "80475" or None
 
 # Opt: specify exact PDF URL if needed
 # Leave None to process LAs latest matching inspection
