@@ -740,78 +740,46 @@ def extract_inspection_data_update(pdf_content, source_pdf_url=None, debug_pdf=F
     inspection_grades_dict = dict(zip(df['judgement'], df['grade']))
 
 
-    # From April 2026, no overall effectiveness judgement issued
-    # Retain existing extraction behaviour for older inspections
+    # ============================================================
+    # PDF EXTRACTION DIAGNOSTICS
+    # Enable via debug_pdf=True
+    # Generic diagnostic output for problematic PDFs
+    # ============================================================
 
-    overall_grade_change_date = parse_date(
-        "01 April 2026", "%d %B %Y"
-    )
+    if debug_pdf:
 
-    if (
-        start_date_formatted is not None
-        and start_date_formatted >= overall_grade_change_date
-    ):
-        inspection_grades_dict['overall_effectiveness'] = 'not_judged'
+        print("\n========== PDF EXTRACTION DIAGNOSTICS ==========")
+        print(f"Source PDF: {source_pdf_url or 'Not supplied'}")
+        print(f"Inspection start date: {start_date_formatted}")
 
-        # Validate remaining 4 judgements
-        required_grades = [
-            'impact_of_leaders',
-            'help_and_protection',
-            'in_care',
-            'care_leavers'
-        ]
+        # PDF text extraction
+        print("\n--- FIRST PAGE TEXT ---")
+        print((first_page_text or '')[:2500])
 
-        invalid_grades = [
-            key for key in required_grades
-            if str(inspection_grades_dict.get(key, '')).strip().lower()
-            in ('', 'nan', 'data_unreadable', 'none')
-        ]
+        # Raw tables returned by Tabula
+        print("\n--- TABULA EXTRACTED TABLES ---")
+        print(f"Tables found: {len(tables)}")
 
-        if invalid_grades:
-            raise ValueError(
-                f"Missing or unreadable inspection grades: {invalid_grades}"
-            )
-        
-# ============================================================
-# PDF EXTRACTION DIAGNOSTICS
-# Enable via debug_pdf=True
-# Generic diagnostic output for inspecting problematic PDFs
-# ============================================================
+        for i, table in enumerate(tables, start=1):
+            print(f"\nTable {i}:")
+            print(table.to_string(index=False))
 
-if debug_pdf:
+        # Final DataFrame after cleaning
+        print("\n--- PROCESSED JUDGEMENT DATAFRAME ---")
+        print(df.to_string(index=False))
 
-    print("\n========== PDF EXTRACTION DIAGNOSTICS ==========")
-    print(f"Source PDF: {source_pdf_url or 'Not supplied'}")
-    print(f"Inspection start date: {start_date_formatted}")
+        # Extracted grades before framework adjustments
+        print("\n--- EXTRACTED GRADES DICTIONARY ---")
 
-    # PDF text extraction
-    print("\n--- FIRST PAGE TEXT ---")
-    print((first_page_text or '')[:2500])
+        for key, value in inspection_grades_dict.items():
+            print(f"  {key}: {value}")
 
-    # Raw tables returned by Tabula
-    print("\n--- TABULA EXTRACTED TABLES ---")
-    print(f"Tables found: {len(tables)}")
-
-    for i, table in enumerate(tables, start=1):
-        print(f"\nTable {i}:")
-        print(table.to_string(index=False))
-
-    # Final DataFrame after existing cleaning functions
-    print("\n--- PROCESSED JUDGEMENT DATAFRAME ---")
-    print(df.to_string(index=False))
-
-    # Extracted grades
-    print("\n--- EXTRACTED GRADES DICTIONARY ---")
-
-    for key, value in inspection_grades_dict.items():
-        print(f"  {key}: {value}")
-
-    print("\n========== END PDF DIAGNOSTICS ==========\n")
+        print("\n========== END PDF DIAGNOSTICS ==========\n")
 
 
     # ============================================================
     # FRAMEWORK HANDLING: APRIL 2026 ONWARDS
-    # No overall effectiveness judgement from this date
+    # Overall effectiveness no longer judged
     # Runs regardless of debug_pdf setting
     # ============================================================
 
@@ -827,7 +795,7 @@ if debug_pdf:
         # Overall effectiveness no longer judged
         inspection_grades_dict['overall_effectiveness'] = 'not_judged'
 
-        # Validate 4 remaining judgements
+        # Validate four remaining judgements
         expected_grades = [
             'impact_of_leaders',
             'help_and_protection',
@@ -852,6 +820,7 @@ if debug_pdf:
             print("Four inspection judgements validated")
             print("Overall effectiveness: not_judged")
 
+            
     
     # Ensure not yet introduced judgement is consistent pre-introduction
     # new care_leavers judgement introduction date (1st January 2023)
